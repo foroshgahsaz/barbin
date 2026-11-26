@@ -51,6 +51,36 @@ php artisan config:cache
 # route:cache نزنید
 ```
 
+## «Domain Not Found» از Traefik (404 با HTML بنفش Runflare)
+
+اگر از **داخل پاد** `curl http://127.0.0.1/up` → **200** ولی از **خارج**  
+`https://barbin-xn3-barbin.runflare.cloud/up` → **404** با صفحه Loading/Domain Not Found:
+
+مشکل **Laravel نیست** — **Ingress/Traefik دامنه را به سرویس پاد وصل نکرده**.
+
+در پنل Runflare بررسی کنید:
+
+1. دامنه `barbin-xn3-barbin.runflare.cloud` به همین **Deployment/Service** وصل باشد.
+2. **Port** سرویس = همان پورتی که nginx داخل پاد روی آن گوش می‌دهد (معمولاً `80`).
+3. **Host / Route** دقیقاً همین subdomain باشد (نه فقط `runflare.cloud`).
+4. بعد از deploy چند دقیقه صبر کنید؛ 502/503 موقت Runflare است، ولی **Domain Not Found** یعنی route اصلاً تعریف نشده.
+
+تست از داخل پاد با Host عمومی:
+
+```bash
+curl -sI -H "Host: barbin-xn3-barbin.runflare.cloud" http://127.0.0.1/up | head -5
+```
+
+اگر این **200** است ولی HTTPS خارجی 404 است → فقط لایه Runflare/Traefik.
+
+## `livewire/livewire.js` → 404 از nginx داخلی
+
+اگر `curl http://127.0.0.1/up` → 200 ولی `curl http://127.0.0.1/livewire/livewire.js` → 404:
+
+nginx احتمالاً فایل فیزیکی را می‌جوید و به **index.php** نمی‌دهد.  
+تنظیم درست: `try_files $uri $uri/ /index.php?$query_string;`  
+نمونه کامل: [`nginx-laravel-runflare.conf`](nginx-laravel-runflare.conf)
+
 ## مسیرهای مهم
 
 | URL | انتظار |
