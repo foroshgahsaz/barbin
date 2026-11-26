@@ -1,14 +1,16 @@
 # راهنمای `.env` محلی
 
-## مراحل
+## مراحل (MySQL)
 
 ```bash
-cp .env.example .env
+cp stock/documentation/env.mysql.full.example .env
 php artisan key:generate
-touch database/database.sqlite   # اگر DB_CONNECTION=sqlite
+# در MySQL: CREATE DATABASE barbin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 php artisan migrate --seed
 php artisan serve
 ```
+
+فایل **کامل و تفکیک‌شده**: [`env.mysql.full.example`](env.mysql.full.example)
 
 ## چه چیز در `.env` است / نیست
 
