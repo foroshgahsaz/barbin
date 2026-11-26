@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('slug');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            $table->unique(['owner_user_id', 'slug']);
+            $table->unique(['owner_user_id', 'slug'], 'cust_groups_owner_slug_uq');
         });
 
         Schema::create('customers', function (Blueprint $table) {
@@ -36,8 +36,8 @@ return new class extends Migration
             $table->boolean('notify_consent')->default(true);
             $table->timestamp('last_notified_at')->nullable();
             $table->timestamps();
-            $table->unique(['owner_user_id', 'mobile']);
-            $table->index(['owner_user_id', 'is_active']);
+            $table->unique(['owner_user_id', 'mobile'], 'customers_owner_mobile_uq');
+            $table->index(['owner_user_id', 'is_active'], 'customers_owner_active_idx');
         });
 
         Schema::create('inventory_import_batches', function (Blueprint $table) {
@@ -69,7 +69,7 @@ return new class extends Migration
             $table->string('import_status', 32)->default('confirmed');
             $table->json('error_info')->nullable();
             $table->timestamps();
-            $table->index('recorded_at');
+            $table->index('recorded_at', 'inv_snapshots_recorded_idx');
         });
 
         Schema::create('inventory_snapshot_items', function (Blueprint $table) {
@@ -81,8 +81,8 @@ return new class extends Migration
             $table->decimal('quantity', 18, 4)->default(0);
             $table->json('meta')->nullable();
             $table->timestamps();
-            $table->index(['inventory_snapshot_id', 'product_code']);
-            $table->index('product_code');
+            $table->index(['inventory_snapshot_id', 'product_code'], 'inv_snap_items_snap_code_idx');
+            $table->index('product_code', 'inv_snap_items_code_idx');
         });
 
         Schema::create('sales_files', function (Blueprint $table) {
@@ -101,7 +101,7 @@ return new class extends Migration
             $table->json('processing_errors')->nullable();
             $table->json('meta')->nullable();
             $table->timestamps();
-            $table->index(['user_id', 'created_at']);
+            $table->index(['user_id', 'created_at'], 'sales_files_user_created_idx');
         });
 
         Schema::create('sales_file_items', function (Blueprint $table) {
@@ -116,8 +116,8 @@ return new class extends Migration
             $table->string('stock_status', 32)->default('pending');
             $table->string('match_notes')->nullable();
             $table->timestamps();
-            $table->index(['sales_file_id', 'row_number']);
-            $table->index('product_code');
+            $table->index(['sales_file_id', 'row_number'], 'sales_items_file_row_idx');
+            $table->index('product_code', 'sales_items_code_idx');
         });
 
         Schema::create('product_images', function (Blueprint $table) {
@@ -138,8 +138,8 @@ return new class extends Migration
             $table->string('product_code', 64);
             $table->boolean('is_primary')->default(false);
             $table->timestamps();
-            $table->unique(['product_image_id', 'product_code']);
-            $table->index('product_code');
+            $table->unique(['product_image_id', 'product_code'], 'prod_img_codes_img_code_uq');
+            $table->index('product_code', 'prod_img_codes_code_idx');
         });
 
         Schema::create('messengers', function (Blueprint $table) {
@@ -162,7 +162,7 @@ return new class extends Migration
             $table->text('value')->nullable();
             $table->boolean('is_encrypted')->default(false);
             $table->timestamps();
-            $table->unique(['group', 'key']);
+            $table->unique(['group', 'key'], 'sys_settings_group_key_uq');
         });
 
         Schema::create('pdf_access_tokens', function (Blueprint $table) {
@@ -191,9 +191,9 @@ return new class extends Migration
             $table->text('error_message')->nullable();
             $table->string('idempotency_key', 128)->nullable();
             $table->timestamps();
-            $table->index(['sales_file_id', 'customer_id', 'channel']);
-            $table->index(['user_id', 'created_at']);
-            $table->index('idempotency_key');
+            $table->index(['sales_file_id', 'customer_id', 'channel'], 'delivery_logs_file_cust_ch_idx');
+            $table->index(['user_id', 'created_at'], 'delivery_logs_user_created_idx');
+            $table->index('idempotency_key', 'delivery_logs_idem_idx');
         });
 
         Schema::create('audit_logs', function (Blueprint $table) {
@@ -204,7 +204,7 @@ return new class extends Migration
             $table->unsignedBigInteger('auditable_id')->nullable();
             $table->json('properties')->nullable();
             $table->timestamps();
-            $table->index(['auditable_type', 'auditable_id']);
+            $table->index(['auditable_type', 'auditable_id'], 'audit_logs_auditable_idx');
         });
     }
 
