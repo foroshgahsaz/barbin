@@ -69,7 +69,7 @@ class RolesAndPermissionsSeeder extends Seeder
             $role->syncPermissions($perms);
         }
 
-        $admin = User::query()->firstOrCreate(
+        $admin = User::query()->updateOrCreate(
             ['email' => 'admin@barbin.local'],
             [
                 'name' => 'مدیر کل',
