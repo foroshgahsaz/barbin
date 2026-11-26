@@ -72,3 +72,27 @@ echo 'DB_CONNECTION=mysql' >> /var/www/.env
 # ... بقیه متغیرها
 php artisan key:generate --force
 ```
+
+## خطای `POST admin/login` — Method Not Allowed (Filament)
+
+صفحه لاگین Filament فقط **GET** دارد. ارسال فرم باید با **Livewire** به `POST /livewire/update` برود.
+اگر مرورگر مستقیم `POST /admin/login` می‌زند، معمولاً **JavaScript Livewire لود نشده** یا **`route:cache` خراب** است.
+
+```bash
+php artisan route:clear
+php artisan config:clear
+php artisan view:clear
+php artisan config:cache
+# هرگز route:cache نزنید
+```
+
+در `.env`:
+
+```env
+APP_URL=https://barbin-xn3-barbin.runflare.cloud
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
+```
+
+Document root باید `public/` باشد. در مرورگر Network تب کنید: `livewire/livewire.js` باید **200** باشد.
+```
