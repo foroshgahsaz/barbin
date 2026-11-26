@@ -8,6 +8,25 @@ use Illuminate\Support\Facades\DB;
 
 class WarehouseAnalyticsService
 {
+    /**
+     * @return list<object>
+     */
+    public function criticalStock(float $maxQty = 5, ?InventorySnapshot $snapshot = null): array
+    {
+        $snapshot ??= InventorySnapshot::latestConfirmed();
+        if (! $snapshot) {
+            return [];
+        }
+
+        return $snapshot->items()
+            ->where('quantity', '>', 0)
+            ->where('quantity', '<=', $maxQty)
+            ->orderBy('quantity')
+            ->limit(100)
+            ->get()
+            ->all();
+    }
+
     public function summary(?InventorySnapshot $snapshot = null): array
     {
         $snapshot ??= InventorySnapshot::latestConfirmed();
