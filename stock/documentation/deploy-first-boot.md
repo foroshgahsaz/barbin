@@ -1,5 +1,23 @@
 # اولین اجرا روی سرور / پاد (مثلاً `/var/www`)
 
+## خطای `1071 Specified key was too long` (migrate روی MySQL)
+
+در `AppServiceProvider` باید باشد:
+
+```php
+Schema::defaultStringLength(191);
+```
+
+سپس دیتابیس نیمه‌کاره را پاک کنید و دوباره migrate:
+
+```bash
+php artisan config:clear
+php artisan migrate:fresh --force --seed
+php artisan config:cache
+```
+
+اگر بعد از fail جدول `users` مانده: `migrate:fresh` یا `DROP TABLE users, migrations, ...`
+
 ## خطای `file_get_contents(.env): No such file`
 
 Laravel قبل از `php artisan key:generate` به فایل **`.env`** نیاز دارد. اول فایل را بسازید، بعد کلید را تولید کنید.
