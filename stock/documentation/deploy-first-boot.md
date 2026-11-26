@@ -94,5 +94,17 @@ SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=lax
 ```
 
-Document root باید `public/` باشد. در مرورگر Network تب کنید: `livewire/livewire.js` باید **200** باشد.
+Document root باید `public/` باشد. در مرورگر Network تب کنید: `livewire/livewire.js` یا **`/vendor/livewire/livewire.js`** باید **200** باشد.
+
+روی هر deploy / پاد حتماً (یا فایل‌ها از Git باشند):
+
+```bash
+php artisan livewire:publish --assets --no-interaction
+php artisan route:clear
+php artisan config:cache
+```
+
+`.env` باید با دامنه فعلی یکی باشد، مثلاً:
+
+`APP_URL=https://barbin-ib3-barbin.runflare.cloud`
 ```
