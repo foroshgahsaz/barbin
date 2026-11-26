@@ -2,11 +2,13 @@
 
 ## خطای `1071 Specified key was too long` (migrate روی MySQL)
 
-در `AppServiceProvider` باید باشد:
+1. در `AppServiceProvider`:
 
 ```php
 Schema::defaultStringLength(191);
 ```
+
+2. migration نقش‌ها (Spatie): `name` و `guard_name` طول **125** (در ریپو اصلاح شده).
 
 سپس دیتابیس نیمه‌کاره را پاک کنید و دوباره migrate:
 
