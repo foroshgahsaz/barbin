@@ -2,7 +2,17 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\Analytics\WarehouseAnalyticsService;
+use App\Filament\Widgets\Analytics\AbcQuantityPolarChart;
+use App\Filament\Widgets\Analytics\AbcValueBarChart;
+use App\Filament\Widgets\Analytics\CapitalTopProductsDoughnutChart;
+use App\Filament\Widgets\Analytics\CriticalStockBarChart;
+use App\Filament\Widgets\Analytics\ExcessStockBarChart;
+use App\Filament\Widgets\Analytics\InventoryTimelineLineChart;
+use App\Filament\Widgets\Analytics\SlowMoversBarChart;
+use App\Filament\Widgets\Analytics\SnapshotDeltaBarChart;
+use App\Filament\Widgets\Analytics\StockStatusDoughnutChart;
+use App\Filament\Widgets\Analytics\UnchangedStockPieChart;
+use App\Filament\Widgets\Analytics\XyzVolatilityBarChart;
 use Filament\Pages\Page;
 
 class WarehouseAnalyticsPage extends Page
@@ -17,34 +27,6 @@ class WarehouseAnalyticsPage extends Page
 
     protected static ?string $title = 'تحلیل و هوشمندی انبار';
 
-    public array $summary = [];
-
-    public array $unchanged = [];
-
-    public array $critical = [];
-
-    public array $timeline = [];
-
-    public array $excess = [];
-
-    public array $abc = [];
-
-    public array $abcValue = [];
-
-    public array $capital = [];
-
-    public array $xyz = [];
-
-    public array $zeroStock = [];
-
-    public array $stockDelta = [];
-
-    public array $reorder = [];
-
-    public array $excessValue = [];
-
-    public array $slowMovers = [];
-
     public static function canAccess(): bool
     {
         $user = auth()->user();
@@ -52,21 +34,25 @@ class WarehouseAnalyticsPage extends Page
         return $user && ($user->can('reports.analytics') || $user->can('reports.warehouse_ops') || $user->can('reports.readonly_exec'));
     }
 
-    public function mount(WarehouseAnalyticsService $analytics): void
+    protected function getFooterWidgets(): array
     {
-        $this->summary = $analytics->summary();
-        $this->unchanged = $analytics->unchangedProducts(90);
-        $this->critical = $analytics->criticalStock();
-        $this->timeline = $analytics->snapshotTimeline(90);
-        $this->excess = $analytics->excessStock();
-        $this->abc = $analytics->abcByQuantity();
-        $this->abcValue = $analytics->abcByValue();
-        $this->capital = $analytics->capitalAtRest();
-        $this->xyz = $analytics->xyzByStockVolatility(90);
-        $this->zeroStock = $analytics->zeroStockList();
-        $this->stockDelta = $analytics->stockDeltaBetweenLatestSnapshots();
-        $this->reorder = $analytics->reorderSuggestions();
-        $this->excessValue = $analytics->excessByValue();
-        $this->slowMovers = $analytics->slowMoversWithoutSales();
+        return [
+            StockStatusDoughnutChart::class,
+            CapitalTopProductsDoughnutChart::class,
+            UnchangedStockPieChart::class,
+            InventoryTimelineLineChart::class,
+            AbcQuantityPolarChart::class,
+            AbcValueBarChart::class,
+            XyzVolatilityBarChart::class,
+            SnapshotDeltaBarChart::class,
+            CriticalStockBarChart::class,
+            ExcessStockBarChart::class,
+            SlowMoversBarChart::class,
+        ];
+    }
+
+    public function getFooterWidgetsColumns(): int|string|array
+    {
+        return ['default' => 1, 'md' => 2, 'xl' => 3];
     }
 }
