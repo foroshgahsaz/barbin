@@ -8,6 +8,7 @@ use App\Models\InventorySnapshot;
 use App\Models\InventorySnapshotItem;
 use App\Models\User;
 use App\Services\Excel\ColumnResolver;
+use App\Services\Audit\AuditLogger;
 use App\Support\ProductCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -153,6 +154,8 @@ class InventoryImportService
 
                 InventorySnapshotItem::query()->insert($insert);
             }
+
+            AuditLogger::log('inventory.confirmed', $snapshot, ['items' => $snapshot->items_count]);
 
             $batch->update([
                 'status' => ImportBatchStatus::Confirmed,

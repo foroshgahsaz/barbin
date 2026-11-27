@@ -21,6 +21,14 @@ php artisan test
 php artisan queue:work   # برای ارسال پیامک انبوه
 ```
 
+### دمو ۳ ماهه (وب)
+
+```bash
+php artisan barbin:seed-demo --force
+```
+
+راهنما: [`stock/documentation/demo-seeder.md`](stock/documentation/demo-seeder.md)
+
 ## پنل Filament (خلاصه ماژول‌ها)
 
 - انبار: بارگذاری موجودی، Snapshot، تحلیل انبار

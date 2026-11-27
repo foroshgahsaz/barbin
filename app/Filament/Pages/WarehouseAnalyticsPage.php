@@ -23,6 +23,12 @@ class WarehouseAnalyticsPage extends Page
 
     public array $critical = [];
 
+    public array $timeline = [];
+
+    public array $excess = [];
+
+    public array $abc = [];
+
     public static function canAccess(): bool
     {
         $user = auth()->user();
@@ -35,5 +41,8 @@ class WarehouseAnalyticsPage extends Page
         $this->summary = $analytics->summary();
         $this->unchanged = $analytics->unchangedProducts(90);
         $this->critical = $analytics->criticalStock();
+        $this->timeline = $analytics->snapshotTimeline(90);
+        $this->excess = $analytics->excessStock();
+        $this->abc = $analytics->abcByQuantity();
     }
 }
