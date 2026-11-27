@@ -73,6 +73,22 @@ echo 'DB_CONNECTION=mysql' >> /var/www/.env
 php artisan key:generate --force
 ```
 
+## منوهای Filament نیست / `barbin:reset-admin` پیدا نشد
+
+کد روی پاد **قدیمی** است. از **main** بعد از merge PR #7 دوباره Deploy کنید.
+
+```bash
+php artisan barbin:verify-deploy
+php artisan barbin:reset-admin
+php artisan permission:cache-reset
+php artisan optimize:clear
+php artisan config:cache
+```
+
+اگر `verify-deploy` چیزی را `[MISSING]` نشان داد → Runflare **Rebuild** بدون cache image قدیمی.
+
+نقش مدیر: `php artisan tinker --execute="dump(App\\Models\\User::whereEmail('admin@barbin.local')->first()?->getRoleNames());"`
+
 ## خطای `POST admin/login` — Method Not Allowed (Filament)
 
 صفحه لاگین Filament فقط **GET** دارد. ارسال فرم باید با **Livewire** به `POST /livewire/update` برود.
