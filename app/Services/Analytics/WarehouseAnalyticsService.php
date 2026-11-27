@@ -80,4 +80,83 @@ class WarehouseAnalyticsService
                 ->all(),
         ];
     }
+
+    /**
+     * @return list<array{date: string, items: int, in_stock: int}>
+     */
+    public function snapshotTimeline(int $days = 90): array
+    {
+        return InventorySnapshot::query()
+            ->where('recorded_at', '>=', Carbon::now()->subDays($days))
+            ->orderBy('recorded_at')
+            ->get(['recorded_at', 'items_count', 'in_stock_count'])
+            ->map(fn ($s) => [
+                'date' => $s->recorded_at->format('Y-m-d'),
+                'items' => $s->items_count,
+                'in_stock' => $s->in_stock_count,
+            ])
+            ->all();
+    }
+
+    /**
+     * موجودی مازاد (آستانه بالا — بدون قیمت خرید فقط تعداد)
+     *
+     * @return list<object>
+     */
+    public function excessStock(float $minQty = 50, ?InventorySnapshot $snapshot = null): array
+    {
+        $snapshot ??= InventorySnapshot::latestConfirmed();
+        if (! $snapshot) {
+            return [];
+        }
+
+        return $snapshot->items()
+            ->where('quantity', '>=', $minQty)
+            ->orderByDesc('quantity')
+            ->limit(50)
+            ->get()
+            ->all();
+    }
+
+    /**
+     * طبقه‌بندی ABC براساس «سهم موجودی عددی» (نه ارزش ریالی — تا داده قیمت خرید نداشته باشیم)
+     *
+     * @return array{a: list<object>, b: list<object>, c: list<object>}
+     */
+    public function abcByQuantity(?InventorySnapshot $snapshot = null): array
+    {
+        $snapshot ??= InventorySnapshot::latestConfirmed();
+        if (! $snapshot) {
+            return ['a' => [], 'b' => [], 'c' => []];
+        }
+
+        $items = $snapshot->items()
+            ->where('quantity', '>', 0)
+            ->orderByDesc('quantity')
+            ->get();
+
+        $total = $items->sum('quantity');
+        if ($total <= 0) {
+            return ['a' => [], 'b' => [], 'c' => []];
+        }
+
+        $running = 0.0;
+        $a = [];
+        $b = [];
+        $c = [];
+
+        foreach ($items as $item) {
+            $running += (float) $item->quantity;
+            $pct = ($running / $total) * 100;
+            if ($pct <= 80) {
+                $a[] = $item;
+            } elseif ($pct <= 95) {
+                $b[] = $item;
+            } else {
+                $c[] = $item;
+            }
+        }
+
+        return ['a' => $a, 'b' => $b, 'c' => $c];
+    }
 }

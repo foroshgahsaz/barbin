@@ -38,3 +38,13 @@ Artisan::command('barbin:verify-deploy', function () {
 
     return $allOk ? 0 : 1;
 })->purpose('بررسی deploy نسخه جدید');
+
+Artisan::command('barbin:seed-demo {--force : بدون تأیید}', function () {
+    if (! $this->option('force') && ! $this->confirm('داده دمو ~۳ ماه اضافه می‌شود (بدون حذف داده فعلی). ادامه؟', true)) {
+        return 1;
+    }
+    $this->call('db:seed', ['--class' => 'Database\\Seeders\\BarbinDemoThreeMonthSeeder', '--force' => true]);
+    $this->info('Demo seeded. لاگین: sales@barbin.local / warehouse@barbin.local — password');
+
+    return 0;
+})->purpose('سیدر نمایشی ۳ ماه موجودی، فروش و مشتری');

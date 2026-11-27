@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\BrandingSettingsPage;
 use App\Filament\Pages\SmsSettingsPage;
 use App\Filament\Pages\WarehouseAnalyticsPage;
+use App\Filament\Resources\AuditLogResource;
 use App\Filament\Resources\CustomerGroupResource;
 use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\DeliveryLogResource;
@@ -53,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
                 DeliveryLogResource::class,
                 UserResource::class,
                 MessengerResource::class,
+                AuditLogResource::class,
             ])
             ->pages([
                 Pages\Dashboard::class,
