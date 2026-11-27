@@ -4,7 +4,9 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\BrandingSettingsPage;
 use App\Filament\Pages\SmsSettingsPage;
+use App\Filament\Pages\ExecutiveAnalyticsPage;
 use App\Filament\Pages\WarehouseAnalyticsPage;
+use App\Filament\Resources\PdfAccessTokenResource;
 use App\Filament\Resources\AuditLogResource;
 use App\Filament\Resources\CustomerGroupResource;
 use App\Filament\Resources\CustomerResource;
@@ -55,17 +57,20 @@ class AdminPanelProvider extends PanelProvider
                 UserResource::class,
                 MessengerResource::class,
                 AuditLogResource::class,
+                PdfAccessTokenResource::class,
             ])
             ->pages([
                 Pages\Dashboard::class,
                 SmsSettingsPage::class,
                 BrandingSettingsPage::class,
                 WarehouseAnalyticsPage::class,
+                ExecutiveAnalyticsPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 \App\Filament\Widgets\BarbinStatsWidget::class,
                 \App\Filament\Widgets\RecentSalesFilesWidget::class,
+                \App\Filament\Widgets\ExecutiveSummaryWidget::class,
                 Widgets\AccountWidget::class,
             ])
             ->middleware([

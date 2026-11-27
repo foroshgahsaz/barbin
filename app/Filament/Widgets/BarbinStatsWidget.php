@@ -13,13 +13,19 @@ class BarbinStatsWidget extends BaseWidget
 {
     protected function getStats(): array
     {
-        $warehouse = app(WarehouseAnalyticsService::class)->summary();
+        $service = app(WarehouseAnalyticsService::class);
+        $warehouse = $service->summary();
 
         $stats = [
             Stat::make('کل کالاهای Snapshot', (string) ($warehouse['items_count'] ?? 0)),
             Stat::make('موجود', (string) ($warehouse['in_stock_count'] ?? 0)),
             Stat::make('بدون موجودی', (string) ($warehouse['zero_stock_count'] ?? 0)),
         ];
+
+        if (auth()->user()?->can('reports.analytics') || auth()->user()?->can('reports.warehouse_ops')) {
+            $capital = $service->capitalAtRest();
+            $stats[] = Stat::make('سرمایه خوابیده', number_format($capital['total_value'] ?? 0).' ریال');
+        }
 
         if (auth()->user()?->can('settings.manage')) {
             $stats[] = Stat::make('مدیران فروش', (string) User::role('sales_manager')->count());

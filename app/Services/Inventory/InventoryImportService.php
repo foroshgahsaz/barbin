@@ -34,6 +34,7 @@ class InventoryImportService
         $descIdx = ColumnResolver::resolveIndex($header, $config['description_headers']);
         $unitIdx = ColumnResolver::resolveIndex($header, $config['unit_headers']);
         $qtyIdx = ColumnResolver::resolveIndex($header, $config['quantity_headers']);
+        $priceIdx = ColumnResolver::resolveIndex($header, $config['purchase_price_headers']);
 
         $errors = [];
         if ($codeIdx === null || $qtyIdx === null) {
@@ -71,11 +72,18 @@ class InventoryImportService
                 $zero++;
             }
 
+            $purchasePrice = null;
+            if ($priceIdx !== null) {
+                $rawPrice = $row[$priceIdx] ?? null;
+                $purchasePrice = is_numeric($rawPrice) ? round((float) $rawPrice, 2) : null;
+            }
+
             $parsed[] = [
                 'product_code' => $code,
                 'description' => $descIdx !== null ? trim((string) ($row[$descIdx] ?? '')) : null,
                 'unit' => $unitIdx !== null ? trim((string) ($row[$unitIdx] ?? '')) : null,
                 'quantity' => $quantity,
+                'purchase_price' => $purchasePrice,
             ];
         }
 
@@ -148,6 +156,7 @@ class InventoryImportService
                     'description' => $row['description'],
                     'unit' => $row['unit'],
                     'quantity' => $row['quantity'],
+                    'purchase_price' => $row['purchase_price'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ], $chunk);

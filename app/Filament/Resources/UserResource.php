@@ -43,6 +43,16 @@ class UserResource extends Resource
                 ->multiple()
                 ->preload(),
             Forms\Components\Toggle::make('is_active')->label('فعال')->default(true),
+            Forms\Components\Section::make('دسترسی اضافه اپراتور فروش')
+                ->schema([
+                    Forms\Components\Toggle::make('operator_permissions.notify')
+                        ->label('ارسال پیامک / اطلاع‌رسانی')
+                        ->helperText('برای نقش sales_operator بدون دسترسی پیش‌فرض'),
+                    Forms\Components\Toggle::make('operator_permissions.view_all_sales')
+                        ->label('مشاهده همه فایل‌های فروش'),
+                ])
+                ->columns(2)
+                ->collapsed(),
         ]);
     }
 

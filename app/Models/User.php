@@ -75,4 +75,14 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->is_active && $this->roles()->exists();
     }
+
+    public function operatorAllows(string $key): bool
+    {
+        return (bool) ($this->operator_permissions[$key] ?? false);
+    }
+
+    public function canNotifySales(): bool
+    {
+        return $this->can('sales.notify') || $this->operatorAllows('notify');
+    }
 }

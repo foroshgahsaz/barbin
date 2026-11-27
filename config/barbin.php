@@ -6,6 +6,7 @@ return [
         'description_headers' => ['شرح کالا', 'شرح', 'description', 'title'],
         'unit_headers' => ['واحد', 'واحد کالا', 'unit'],
         'quantity_headers' => ['موجودی', 'qty', 'quantity', 'مقدار'],
+        'purchase_price_headers' => ['قیمت خرید', 'قیمت تمام شده', 'purchase_price', 'cost'],
     ],
     'sales' => [
         'code_headers' => ['کد کالا', 'کد', 'product_code', 'code'],

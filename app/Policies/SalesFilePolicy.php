@@ -9,7 +9,7 @@ class SalesFilePolicy
 {
     public function view(User $user, SalesFile $salesFile): bool
     {
-        if ($user->can('sales.view_all')) {
+        if ($user->can('sales.view_all') || $user->operatorAllows('view_all_sales')) {
             return true;
         }
 

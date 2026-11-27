@@ -8,6 +8,7 @@ use App\Support\ProductCode;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Laravel\Facades\Image;
 
 class ProductImageService
 {
@@ -26,11 +27,13 @@ class ProductImageService
 
         Storage::disk('local')->put($path, file_get_contents($file->getRealPath()));
 
+        $thumbPath = $this->createThumbnail($file->getRealPath(), $ownerUserId, $ext, $path);
+
         return ProductImage::query()->create([
             'owner_user_id' => $ownerUserId,
             'title' => $title,
             'file_path' => $path,
-            'thumbnail_path' => $path,
+            'thumbnail_path' => $thumbPath,
             'mime_type' => $mime,
             'file_size' => $file->getSize(),
             'is_active' => true,
@@ -60,5 +63,21 @@ class ProductImageService
                 ],
             );
         }
+    }
+
+    private function createThumbnail(string $sourcePath, int $ownerUserId, string $ext, string $fallbackPath): string
+    {
+        $thumbName = 'thumb_'.Str::uuid()->toString().'.'.$ext;
+        $thumbPath = 'product-images/'.$ownerUserId.'/thumbs/'.$thumbName;
+        $absoluteThumb = Storage::disk('local')->path($thumbPath);
+        @mkdir(dirname($absoluteThumb), 0775, true);
+
+        try {
+            Image::read($sourcePath)->scale(width: 240)->save($absoluteThumb);
+        } catch (\Throwable) {
+            return $fallbackPath;
+        }
+
+        return $thumbPath;
     }
 }

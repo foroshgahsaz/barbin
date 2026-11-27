@@ -29,6 +29,22 @@ class WarehouseAnalyticsPage extends Page
 
     public array $abc = [];
 
+    public array $abcValue = [];
+
+    public array $capital = [];
+
+    public array $xyz = [];
+
+    public array $zeroStock = [];
+
+    public array $stockDelta = [];
+
+    public array $reorder = [];
+
+    public array $excessValue = [];
+
+    public array $slowMovers = [];
+
     public static function canAccess(): bool
     {
         $user = auth()->user();
@@ -44,5 +60,13 @@ class WarehouseAnalyticsPage extends Page
         $this->timeline = $analytics->snapshotTimeline(90);
         $this->excess = $analytics->excessStock();
         $this->abc = $analytics->abcByQuantity();
+        $this->abcValue = $analytics->abcByValue();
+        $this->capital = $analytics->capitalAtRest();
+        $this->xyz = $analytics->xyzByStockVolatility(90);
+        $this->zeroStock = $analytics->zeroStockList();
+        $this->stockDelta = $analytics->stockDeltaBetweenLatestSnapshots();
+        $this->reorder = $analytics->reorderSuggestions();
+        $this->excessValue = $analytics->excessByValue();
+        $this->slowMovers = $analytics->slowMoversWithoutSales();
     }
 }
