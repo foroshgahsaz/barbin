@@ -9,6 +9,7 @@ use App\Models\SalesFile;
 use App\Models\SalesFileItem;
 use App\Models\User;
 use App\Services\Excel\ColumnResolver;
+use App\Support\NumericCell;
 use App\Support\ProductCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -93,10 +94,7 @@ class SalesFileImportService
                 continue;
             }
 
-            $price = null;
-            if ($priceIdx !== null && isset($row[$priceIdx]) && is_numeric($row[$priceIdx])) {
-                $price = (float) $row[$priceIdx];
-            }
+            $price = $priceIdx !== null ? NumericCell::toFloat($row[$priceIdx] ?? null) : null;
 
             $parsed[] = [
                 'row_number' => $rowNumber,

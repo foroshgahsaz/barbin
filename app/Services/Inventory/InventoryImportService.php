@@ -9,6 +9,7 @@ use App\Models\InventorySnapshotItem;
 use App\Models\User;
 use App\Services\Excel\ColumnResolver;
 use App\Services\Audit\AuditLogger;
+use App\Support\NumericCell;
 use App\Support\ProductCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -64,8 +65,7 @@ class InventoryImportService
             }
             $seen[$code] = true;
 
-            $qtyRaw = $row[$qtyIdx] ?? 0;
-            $quantity = is_numeric($qtyRaw) ? (float) $qtyRaw : 0.0;
+            $quantity = NumericCell::toFloat($row[$qtyIdx] ?? 0) ?? 0.0;
             if ($quantity > 0) {
                 $positive++;
             } else {
