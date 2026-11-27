@@ -24,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        app()->setLocale(config('app.locale', 'fa'));
+
         // MySQL/MariaDB با utf8mb4: ایندکس unique روی varchar(255) از 1000 بایت عبور می‌کند.
         Schema::defaultStringLength(191);
 

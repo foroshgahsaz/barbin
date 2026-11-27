@@ -51,7 +51,7 @@ class DeliveryLogResource extends Resource
                 Tables\Columns\TextColumn::make('channel')->label('کانال')->badge(),
                 Tables\Columns\TextColumn::make('status')->label('وضعیت')->badge(),
                 Tables\Columns\TextColumn::make('attempts')->label('تلاش'),
-                Tables\Columns\TextColumn::make('created_at')->label('زمان')->dateTime(),
+                Tables\Columns\TextColumn::make('created_at')->label('زمان')->shamsiDateTime(),
             ])
             ->defaultSort('created_at', 'desc');
     }

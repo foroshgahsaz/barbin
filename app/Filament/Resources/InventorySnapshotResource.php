@@ -37,7 +37,7 @@ class InventorySnapshotResource extends Resource
                 Tables\Columns\TextColumn::make('items_count')->label('کل کالا'),
                 Tables\Columns\TextColumn::make('in_stock_count')->label('موجود'),
                 Tables\Columns\TextColumn::make('zero_stock_count')->label('صفر'),
-                Tables\Columns\TextColumn::make('recorded_at')->label('تاریخ ثبت')->dateTime(),
+                Tables\Columns\TextColumn::make('recorded_at')->label('تاریخ ثبت')->shamsiDateTime(),
             ])
             ->defaultSort('recorded_at', 'desc')
             ->actions([
@@ -52,7 +52,7 @@ class InventorySnapshotResource extends Resource
             Infolists\Components\TextEntry::make('items_count')->label('کل کالا'),
             Infolists\Components\TextEntry::make('in_stock_count')->label('موجود'),
             Infolists\Components\TextEntry::make('zero_stock_count')->label('صفر'),
-            Infolists\Components\TextEntry::make('recorded_at')->label('تاریخ ثبت')->dateTime(),
+            Infolists\Components\TextEntry::make('recorded_at')->label('تاریخ ثبت')->shamsiDateTime(),
         ]);
     }
 

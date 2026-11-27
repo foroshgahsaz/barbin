@@ -57,7 +57,7 @@ class InventoryImportBatchResource extends Resource
                 Tables\Columns\TextColumn::make('duplicate_codes_count')->label('کد تکراری'),
                 Tables\Columns\TextColumn::make('positive_stock_count')->label('موجود'),
                 Tables\Columns\TextColumn::make('zero_stock_count')->label('صفر'),
-                Tables\Columns\TextColumn::make('created_at')->label('تاریخ')->dateTime(),
+                Tables\Columns\TextColumn::make('created_at')->label('تاریخ')->shamsiDateTime(),
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([

@@ -35,7 +35,7 @@ class AuditLogResource extends Resource
                 Tables\Columns\TextColumn::make('action')->label('عملیات')->searchable(),
                 Tables\Columns\TextColumn::make('user.name')->label('کاربر'),
                 Tables\Columns\TextColumn::make('auditable_type')->label('نوع'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->label('زمان'),
+                Tables\Columns\TextColumn::make('created_at')->shamsiDateTime()->label('زمان'),
             ])
             ->defaultSort('created_at', 'desc');
     }

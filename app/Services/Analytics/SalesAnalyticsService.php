@@ -7,6 +7,7 @@ use App\Enums\StockMatchStatus;
 use App\Models\DeliveryLog;
 use App\Models\SalesFile;
 use App\Models\SalesFileItem;
+use App\Support\JalaliDate;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -94,7 +95,10 @@ class SalesAnalyticsService
             ->groupBy('ym')
             ->orderBy('ym')
             ->get()
-            ->map(fn ($r) => ['month' => $r->ym, 'count' => (int) $r->c])
+            ->map(fn ($r) => [
+                'month' => JalaliDate::formatGregorianYearMonth((string) $r->ym),
+                'count' => (int) $r->c,
+            ])
             ->all();
     }
 

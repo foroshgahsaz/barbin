@@ -3,6 +3,7 @@
 namespace App\Services\Analytics;
 
 use App\Models\InventorySnapshot;
+use App\Support\JalaliDate;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -91,7 +92,7 @@ class WarehouseAnalyticsService
             ->orderBy('recorded_at')
             ->get(['recorded_at', 'items_count', 'in_stock_count'])
             ->map(fn ($s) => [
-                'date' => $s->recorded_at->format('Y-m-d'),
+                'date' => JalaliDate::format($s->recorded_at, 'Y/m/d'),
                 'items' => $s->items_count,
                 'in_stock' => $s->in_stock_count,
             ])
@@ -371,8 +372,8 @@ class WarehouseAnalyticsService
             'added' => $added,
             'removed' => $removed,
             'changed' => $changed,
-            'first_date' => $older->recorded_at?->format('Y-m-d'),
-            'last_date' => $newer->recorded_at?->format('Y-m-d'),
+            'first_date' => JalaliDate::format($older->recorded_at, 'Y/m/d'),
+            'last_date' => JalaliDate::format($newer->recorded_at, 'Y/m/d'),
         ];
     }
 
