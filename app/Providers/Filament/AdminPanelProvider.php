@@ -2,6 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\BrandingSettingsPage;
+use App\Filament\Pages\SmsSettingsPage;
+use App\Filament\Pages\WarehouseAnalyticsPage;
+use App\Filament\Resources\CustomerGroupResource;
+use App\Filament\Resources\CustomerResource;
+use App\Filament\Resources\DeliveryLogResource;
+use App\Filament\Resources\InventoryImportBatchResource;
+use App\Filament\Resources\InventorySnapshotResource;
+use App\Filament\Resources\MessengerResource;
+use App\Filament\Resources\ProductImageResource;
+use App\Filament\Resources\SalesFileResource;
+use App\Filament\Resources\UserResource;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,10 +43,22 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->resources([
+                InventoryImportBatchResource::class,
+                InventorySnapshotResource::class,
+                SalesFileResource::class,
+                CustomerResource::class,
+                CustomerGroupResource::class,
+                ProductImageResource::class,
+                DeliveryLogResource::class,
+                UserResource::class,
+                MessengerResource::class,
+            ])
             ->pages([
                 Pages\Dashboard::class,
+                SmsSettingsPage::class,
+                BrandingSettingsPage::class,
+                WarehouseAnalyticsPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

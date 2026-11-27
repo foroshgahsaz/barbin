@@ -8,7 +8,6 @@ use App\Models\Customer;
 use App\Models\Messenger;
 use App\Models\SalesFile;
 use App\Services\Messengers\MessengerManager;
-use App\Services\Notifications\CustomerNotificationService;
 use App\Services\Pdf\SalesPdfGenerator;
 use App\Services\Sales\SalesExcelExportService;
 use Filament\Forms;
