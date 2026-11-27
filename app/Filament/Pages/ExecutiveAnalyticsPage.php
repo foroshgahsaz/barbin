@@ -2,8 +2,11 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\Analytics\SalesAnalyticsService;
-use App\Services\Analytics\WarehouseAnalyticsService;
+use App\Filament\Widgets\Analytics\CapitalTopProductsDoughnutChart;
+use App\Filament\Widgets\Analytics\DeliveryStatusPieChart;
+use App\Filament\Widgets\Analytics\MonthlySalesFilesBarChart;
+use App\Filament\Widgets\Analytics\SalesMatchDoughnutChart;
+use App\Filament\Widgets\Analytics\TopProductsSalesBarChart;
 use Filament\Pages\Page;
 
 class ExecutiveAnalyticsPage extends Page
@@ -18,22 +21,6 @@ class ExecutiveAnalyticsPage extends Page
 
     protected static ?string $title = 'گزارش مدیریتی و فروش';
 
-    public array $capital = [];
-
-    public array $abcValue = [];
-
-    public array $salesSummary = [];
-
-    public array $matchBreakdown = [];
-
-    public array $delivery = [];
-
-    public array $topProducts = [];
-
-    public array $filesPerMonth = [];
-
-    public array $stockDelta = [];
-
     public static function canAccess(): bool
     {
         $user = auth()->user();
@@ -41,15 +28,19 @@ class ExecutiveAnalyticsPage extends Page
         return $user && ($user->can('reports.readonly_exec') || $user->can('settings.manage'));
     }
 
-    public function mount(WarehouseAnalyticsService $warehouse, SalesAnalyticsService $sales): void
+    protected function getFooterWidgets(): array
     {
-        $this->capital = $warehouse->capitalAtRest();
-        $this->abcValue = $warehouse->abcByValue();
-        $this->stockDelta = $warehouse->stockDeltaBetweenLatestSnapshots();
-        $this->salesSummary = $sales->summary();
-        $this->matchBreakdown = $sales->stockMatchBreakdown();
-        $this->delivery = $sales->deliverySummary();
-        $this->topProducts = $sales->topProductsInLists();
-        $this->filesPerMonth = $sales->filesPerMonth();
+        return [
+            SalesMatchDoughnutChart::class,
+            DeliveryStatusPieChart::class,
+            MonthlySalesFilesBarChart::class,
+            CapitalTopProductsDoughnutChart::class,
+            TopProductsSalesBarChart::class,
+        ];
+    }
+
+    public function getFooterWidgetsColumns(): int|string|array
+    {
+        return ['default' => 1, 'md' => 2, 'xl' => 2];
     }
 }
