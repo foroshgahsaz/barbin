@@ -117,7 +117,7 @@ class SalesFileResource extends Resource
                 Tables\Actions\Action::make('notify_sms')
                     ->label('پیامک مشتریان')
                     ->icon('heroicon-o-device-phone-mobile')
-                    ->visible(fn () => auth()->user()?->can('sales.notify'))
+                    ->visible(fn () => auth()->user()?->canNotifySales())
                     ->form(fn (SalesFile $record) => [
                         Forms\Components\Select::make('customer_ids')
                             ->label('مشتریان')
@@ -151,7 +151,7 @@ class SalesFileResource extends Resource
                 Tables\Actions\Action::make('send_channel')
                     ->label('ارسال به کانال')
                     ->icon('heroicon-o-paper-airplane')
-                    ->visible(fn (SalesFile $record) => auth()->user()?->can('sales.notify') && $record->pdf_path)
+                    ->visible(fn (SalesFile $record) => auth()->user()?->canNotifySales() && $record->pdf_path)
                     ->form([
                         Forms\Components\Select::make('messenger_id')
                             ->label('پیام‌رسان')

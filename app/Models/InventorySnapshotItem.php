@@ -13,6 +13,7 @@ class InventorySnapshotItem extends Model
         'description',
         'unit',
         'quantity',
+        'purchase_price',
         'meta',
     ];
 
@@ -20,6 +21,7 @@ class InventorySnapshotItem extends Model
     {
         return [
             'quantity' => 'decimal:4',
+            'purchase_price' => 'decimal:2',
             'meta' => 'array',
         ];
     }

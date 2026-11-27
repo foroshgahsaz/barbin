@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
 
 class BarbinDemoThreeMonthSeeder extends Seeder
 {
-    /** @var list<array{code: string, title: string, unit: string, price: float, base_qty: float}> */
+    /** @var list<array{code: string, title: string, unit: string, price: float, purchase: float, base_qty: float}> */
     private array $catalog = [];
 
     public function run(): void
@@ -47,6 +47,21 @@ class BarbinDemoThreeMonthSeeder extends Seeder
         );
         $sales->syncRoles(['sales_manager']);
 
+        User::query()->updateOrCreate(
+            ['email' => 'viewer@barbin.local'],
+            ['name' => 'بیننده سازمان', 'password' => Hash::make('password'), 'is_active' => true],
+        )->syncRoles(['organization_viewer']);
+
+        User::query()->updateOrCreate(
+            ['email' => 'operator@barbin.local'],
+            [
+                'name' => 'اپراتور فروش',
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'operator_permissions' => ['notify' => true],
+            ],
+        )->syncRoles(['sales_operator']);
+
         $this->buildCatalog();
 
         $groups = $this->seedCustomerGroups($sales);
@@ -55,7 +70,7 @@ class BarbinDemoThreeMonthSeeder extends Seeder
         $snapshots = $this->seedInventorySnapshots($warehouse, 90);
 
         $this->seedSalesFiles($sales, $snapshots);
-        $this->command?->info('Demo 3-month data seeded. Users: warehouse@barbin.local / sales@barbin.local — password');
+        $this->command?->info('Demo seeded. Users: admin / warehouse / sales / viewer / operator @barbin.local — password');
     }
 
     private function buildCatalog(): void
@@ -84,6 +99,7 @@ class BarbinDemoThreeMonthSeeder extends Seeder
                 'title' => $row[1],
                 'unit' => $row[2],
                 'price' => (float) $row[3],
+                'purchase' => round((float) $row[3] * 0.65, 0),
                 'base_qty' => (float) $row[4],
             ];
         }
@@ -188,6 +204,7 @@ class BarbinDemoThreeMonthSeeder extends Seeder
                     'description' => $item['title'],
                     'unit' => $item['unit'],
                     'quantity' => round($qty, 2),
+                    'purchase_price' => $item['purchase'],
                 ];
             }
 
@@ -211,6 +228,7 @@ class BarbinDemoThreeMonthSeeder extends Seeder
                     'description' => $r['description'],
                     'unit' => $r['unit'],
                     'quantity' => $r['quantity'],
+                    'purchase_price' => $r['purchase_price'],
                     'created_at' => $at,
                     'updated_at' => $at,
                 ], $chunk);

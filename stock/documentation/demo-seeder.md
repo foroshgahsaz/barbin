@@ -14,11 +14,14 @@ php artisan permission:cache-reset
 - **۶ فایل فروش** با ردیف‌های تطبیق‌شده
 - **۱۰ مشتری** در ۴ گروه
 - **لاگ ارسال** نمایشی
-- کاربران:
-  - `warehouse@barbin.local` / `password` (مسئول انبار)
-  - `sales@barbin.local` / `password` (مدیر فروش)
+- کاربران (رمز همه: `password`):
+  - `admin@barbin.local` — مدیر کل
+  - `warehouse@barbin.local` — انبار
+  - `sales@barbin.local` — فروش
+  - `viewer@barbin.local` — گزارش مدیریتی (فقط خواندنی)
+  - `operator@barbin.local` — اپراتور فروش (+ ارسال پیام)
 
-مدیر کل: `admin@barbin.local` / `password`
+Snapshotهای دمو شامل **قیمت خرید** هستند (برای ABC ارزشی و سرمایه خوابیده).
 
 ## مشاهده در پنل
 

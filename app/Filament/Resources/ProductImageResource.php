@@ -61,7 +61,7 @@ class ProductImageResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('file_path')->label('تصویر')->disk('local'),
+                Tables\Columns\ImageColumn::make('thumbnail_path')->label('تصویر')->disk('local'),
                 Tables\Columns\TextColumn::make('title')->label('عنوان')->searchable(),
                 Tables\Columns\TextColumn::make('codes.product_code')->label('کدها')->badge()->limit(30),
                 Tables\Columns\IconColumn::make('is_active')->label('فعال')->boolean(),

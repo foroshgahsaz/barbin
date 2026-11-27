@@ -70,7 +70,8 @@ class SalesPdfGenerator
                 continue;
             }
             if (! isset($map[$link->product_code])) {
-                $map[$link->product_code] = Storage::disk('local')->path($link->image->file_path);
+                $rel = $link->image->thumbnail_path ?: $link->image->file_path;
+                $map[$link->product_code] = Storage::disk('local')->path($rel);
             }
         }
 

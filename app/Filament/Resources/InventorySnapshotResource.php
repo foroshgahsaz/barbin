@@ -3,10 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\InventorySnapshotResource\Pages;
+use App\Filament\Resources\InventorySnapshotResource\RelationManagers\ItemsRelationManager;
 use App\Models\InventorySnapshot;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 
 class InventorySnapshotResource extends Resource
 {
@@ -36,13 +39,35 @@ class InventorySnapshotResource extends Resource
                 Tables\Columns\TextColumn::make('zero_stock_count')->label('صفر'),
                 Tables\Columns\TextColumn::make('recorded_at')->label('تاریخ ثبت')->dateTime(),
             ])
-            ->defaultSort('recorded_at', 'desc');
+            ->defaultSort('recorded_at', 'desc')
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            Infolists\Components\TextEntry::make('original_filename')->label('فایل'),
+            Infolists\Components\TextEntry::make('items_count')->label('کل کالا'),
+            Infolists\Components\TextEntry::make('in_stock_count')->label('موجود'),
+            Infolists\Components\TextEntry::make('zero_stock_count')->label('صفر'),
+            Infolists\Components\TextEntry::make('recorded_at')->label('تاریخ ثبت')->dateTime(),
+        ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ItemsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListInventorySnapshots::route('/'),
+            'view' => Pages\ViewInventorySnapshot::route('/{record}'),
         ];
     }
 }

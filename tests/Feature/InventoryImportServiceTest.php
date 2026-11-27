@@ -33,4 +33,19 @@ class InventoryImportServiceTest extends TestCase
         $this->assertSame(2, $snapshot->items()->count());
         $this->assertSame('00123', $snapshot->items()->where('product_code', '00123')->value('product_code'));
     }
+
+    public function test_import_purchase_price_column(): void
+    {
+        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+
+        $user = User::query()->where('email', 'admin@barbin.local')->first();
+        $csv = "کد کالا,شرح,واحد,موجودی,قیمت خرید\n00123,کالا,عدد,5,450000\n";
+        $path = 'inventory-uploads/test-price.csv';
+        Storage::disk('local')->put($path, $csv);
+
+        $snapshot = app(InventoryImportService::class)
+            ->confirm(app(InventoryImportService::class)->createPreview($user, 'test.csv', $path));
+
+        $this->assertSame('450000.00', (string) $snapshot->items()->where('product_code', '00123')->value('purchase_price'));
+    }
 }
