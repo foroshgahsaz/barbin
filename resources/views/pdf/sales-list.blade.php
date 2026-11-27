@@ -15,7 +15,7 @@
 <body>
     <div class="title">لیست فروش: {{ $salesFile->title }}</div>
     <div class="meta">
-        تاریخ تولید: {{ now()->format('Y-m-d H:i') }}
+        تاریخ تولید: {{ \App\Support\JalaliDate::format(now()) }}
         @if($salesFile->owner)
             | مدیر فروش: {{ $salesFile->owner->name }}
         @endif

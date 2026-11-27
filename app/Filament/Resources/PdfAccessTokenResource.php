@@ -29,7 +29,7 @@ class PdfAccessTokenResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('salesFile.title')->label('لیست فروش')->limit(30),
                 Tables\Columns\TextColumn::make('token')->label('توکن')->limit(12)->copyable(),
-                Tables\Columns\TextColumn::make('expires_at')->label('انقضا')->dateTime(),
+                Tables\Columns\TextColumn::make('expires_at')->label('انقضا')->shamsiDateTime(),
                 Tables\Columns\TextColumn::make('view_count')->label('بازدید'),
                 Tables\Columns\TextColumn::make('download_count')->label('دانلود'),
                 Tables\Columns\IconColumn::make('revoked_at')

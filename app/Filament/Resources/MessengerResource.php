@@ -49,7 +49,7 @@ class MessengerResource extends Resource
                 Tables\Columns\TextColumn::make('name')->label('نام'),
                 Tables\Columns\TextColumn::make('driver')->label('درایور')->badge(),
                 Tables\Columns\IconColumn::make('is_active')->boolean()->label('فعال'),
-                Tables\Columns\TextColumn::make('last_success_at')->dateTime()->label('آخرین موفق'),
+                Tables\Columns\TextColumn::make('last_success_at')->shamsiDateTime()->label('آخرین موفق'),
             ])
             ->actions([
                 Tables\Actions\Action::make('test')
