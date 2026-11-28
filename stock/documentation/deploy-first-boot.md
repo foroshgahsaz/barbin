@@ -80,6 +80,9 @@ php artisan key:generate --force
 ```bash
 php artisan barbin:verify-deploy
 php artisan barbin:ensure-storage
+```
+
+**دیباگ:** پنل → تنظیمات → **لاگ خطاها** (فقط مدیر کل)
 php artisan barbin:reset-admin
 php artisan permission:cache-reset
 php artisan optimize:clear
