@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MessengerResource\Pages;
 use App\Models\Messenger;
+use App\Services\Logs\AdminErrorLogger;
 use App\Services\Messengers\MessengerManager;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -68,12 +69,28 @@ class MessengerResource extends Resource
                     }),
                 Tables\Columns\IconColumn::make('is_active')->boolean()->label('فعال'),
                 Tables\Columns\TextColumn::make('last_success_at')->shamsiDateTime()->label('آخرین موفق'),
+                Tables\Columns\TextColumn::make('last_error')->label('آخرین خطا')->limit(40)->tooltip(fn (?string $state) => $state),
             ])
             ->actions([
                 Tables\Actions\Action::make('test')
                     ->label('تست')
                     ->action(function (Messenger $record) {
                         $result = app(MessengerManager::class)->driver($record)->testConnection();
+
+                        if ($result['success'] ?? false) {
+                            $record->update([
+                                'last_success_at' => now(),
+                                'last_error' => null,
+                            ]);
+                        } else {
+                            $error = (string) ($result['error'] ?? 'خطای ناشناخته');
+                            $record->update(['last_error' => $error]);
+                            AdminErrorLogger::record('messenger.test', $error, context: [
+                                'messenger_id' => $record->id,
+                                'driver' => $record->driver,
+                            ]);
+                        }
+
                         Notification::make()
                             ->title($result['success'] ?? false ? 'موفق' : 'ناموفق')
                             ->body($result['error'] ?? 'OK')

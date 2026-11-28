@@ -48,6 +48,16 @@ Artisan::command('barbin:seed-demo {--force : بدون تأیید}', function ()
 })->purpose('سیدر نمایشی ۳ ماه موجودی، فروش و مشتری');
 
 Artisan::command('barbin:ensure-storage', function () {
+    $logDir = storage_path('logs');
+    if (! is_dir($logDir)) {
+        @mkdir($logDir, 0775, true);
+    }
+    $logFile = $logDir.'/laravel.log';
+    if (! is_file($logFile)) {
+        @file_put_contents($logFile, '');
+        @chmod($logFile, 0664);
+    }
+
     \App\Support\StoragePaths::touchStorageTree();
     $probe = 'sales-pdfs/.write-test';
     try {

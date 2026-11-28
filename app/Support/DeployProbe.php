@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\Schema;
+
 class DeployProbe
 {
     /**
@@ -54,6 +56,11 @@ class DeployProbe
                 'key' => 'storage_paths',
                 'label' => 'PDF/Excel (StoragePaths)',
                 'ok' => is_file(app_path('Support/StoragePaths.php')),
+            ],
+            [
+                'key' => 'application_error_logs',
+                'label' => 'جدول لاگ خطا در ادمین',
+                'ok' => Schema::hasTable('application_error_logs'),
             ],
         ];
     }

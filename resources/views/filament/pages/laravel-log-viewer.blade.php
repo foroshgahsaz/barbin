@@ -13,8 +13,9 @@
         <div class="min-w-[10rem]">
             <label class="text-sm font-medium text-gray-700 dark:text-gray-200">نمایش</label>
             <select wire:model.live="viewMode" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 text-sm">
-                <option value="errors">فقط خطاها</option>
-                <option value="tail">آخر فایل (خام)</option>
+                <option value="stored">ذخیره‌شده در دیتابیس</option>
+                <option value="errors">فایل — فقط خطاها</option>
+                <option value="tail">فایل — آخر فایل (خام)</option>
             </select>
         </div>
         <x-filament::button wire:click="refreshLogs" icon="heroicon-o-arrow-path" size="sm" color="gray">
@@ -26,7 +27,29 @@
         </p>
     </div>
 
-    @if(!($payload['exists'] ?? false))
+    @if($viewMode === 'stored')
+        @if(empty($storedErrors))
+            <x-filament::section>
+                <p class="text-sm text-gray-600 dark:text-gray-300">هنوز خطایی در دیتابیس ثبت نشده است. خطاهای پنل (مثل تست تلگرام) و خطاهای ۵۰۰ اینجا ذخیره می‌شوند.</p>
+            </x-filament::section>
+        @else
+            <div class="space-y-3">
+                @foreach($storedErrors as $row)
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                        <div class="flex flex-wrap gap-2 items-center mb-2 text-xs text-gray-500">
+                            <x-filament::badge color="danger">{{ strtoupper($row->level) }}</x-filament::badge>
+                            <span>{{ $row->source }}</span>
+                            <span>{{ $row->created_at?->format('Y-m-d H:i:s') }}</span>
+                            @if($row->user)
+                                <span>{{ $row->user->name ?? $row->user->email }}</span>
+                            @endif
+                        </div>
+                        <p class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words">{{ $row->message }}</p>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    @elseif(!($payload['exists'] ?? false))
         <x-filament::section>
             <p class="text-sm text-gray-600 dark:text-gray-300">فایل لاگ وجود ندارد یا قابل خواندن نیست.</p>
         </x-filament::section>
