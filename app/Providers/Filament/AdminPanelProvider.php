@@ -15,7 +15,8 @@ use App\Filament\Resources\DeliveryLogResource;
 use App\Filament\Resources\InventoryImportBatchResource;
 use App\Filament\Resources\InventorySnapshotResource;
 use App\Filament\Resources\MessengerResource;
-use App\Filament\Resources\ProductImageResource;
+use App\Filament\Resources\CatalogProductResource;
+use App\Filament\Resources\ProductImageQueueResource;
 use App\Filament\Resources\SalesFileResource;
 use App\Filament\Resources\UserResource;
 use Filament\FontProviders\LocalFontProvider;
@@ -55,7 +56,8 @@ class AdminPanelProvider extends PanelProvider
                 SalesFileResource::class,
                 CustomerResource::class,
                 CustomerGroupResource::class,
-                ProductImageResource::class,
+                CatalogProductResource::class,
+                ProductImageQueueResource::class,
                 DeliveryLogResource::class,
                 UserResource::class,
                 MessengerResource::class,
