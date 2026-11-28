@@ -80,14 +80,13 @@ php artisan key:generate --force
 ```bash
 php artisan barbin:verify-deploy
 php artisan barbin:ensure-storage
-```
-
-**دیباگ:** پنل → تنظیمات → **لاگ خطاها** (فقط مدیر کل)
 php artisan barbin:reset-admin
 php artisan permission:cache-reset
 php artisan optimize:clear
 php artisan config:cache
 ```
+
+**دیباگ:** پنل → تنظیمات → **لاگ خطاها** (فقط مدیر کل)
 
 اگر `verify-deploy` چیزی را `[MISSING]` نشان داد → Runflare **Rebuild** بدون cache image قدیمی.
 

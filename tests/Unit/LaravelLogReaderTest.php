@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Services\Logs\LaravelLogReader;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class LaravelLogReaderTest extends TestCase
 {
