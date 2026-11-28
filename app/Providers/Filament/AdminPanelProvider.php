@@ -18,6 +18,7 @@ use App\Filament\Resources\MessengerResource;
 use App\Filament\Resources\ProductImageResource;
 use App\Filament\Resources\SalesFileResource;
 use App\Filament\Resources\UserResource;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -44,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Barbin')
+            ->font('Peyda', url: asset('css/peyda-font.css'), provider: LocalFontProvider::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
