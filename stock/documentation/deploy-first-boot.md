@@ -86,6 +86,8 @@ php artisan optimize:clear
 php artisan config:cache
 ```
 
+**دیباگ:** پنل → تنظیمات → **لاگ خطاها** (فقط مدیر کل)
+
 اگر `verify-deploy` چیزی را `[MISSING]` نشان داد → Runflare **Rebuild** بدون cache image قدیمی.
 
 نقش مدیر: `php artisan tinker --execute="dump(App\\Models\\User::whereEmail('admin@barbin.local')->first()?->getRoleNames());"`

@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\BrandingSettingsPage;
 use App\Filament\Pages\SmsSettingsPage;
 use App\Filament\Pages\ExecutiveAnalyticsPage;
+use App\Filament\Pages\LaravelLogViewerPage;
 use App\Filament\Pages\WarehouseAnalyticsPage;
 use App\Filament\Resources\PdfAccessTokenResource;
 use App\Filament\Resources\AuditLogResource;
@@ -65,6 +66,7 @@ class AdminPanelProvider extends PanelProvider
                 BrandingSettingsPage::class,
                 WarehouseAnalyticsPage::class,
                 ExecutiveAnalyticsPage::class,
+                LaravelLogViewerPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
