@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'files_disk' => env('BARBIN_FILES_DISK', 'barbin'),
     'inventory' => [
         'code_headers' => ['کد کالا', 'کد', 'product_code', 'code'],
         'description_headers' => ['شرح کالا', 'شرح', 'description', 'title'],

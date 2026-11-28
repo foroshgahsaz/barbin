@@ -38,6 +38,15 @@ return [
             'report' => false,
         ],
 
+        // خروجی PDF/Excel و فایل‌های عملیاتی — ریشه storage/app (سازگار با Runflare)
+        'barbin' => [
+            'driver' => 'local',
+            'root' => storage_path('app'),
+            'serve' => false,
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

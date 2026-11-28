@@ -58,7 +58,11 @@ Artisan::command('barbin:ensure-storage', function () {
     $probe = 'sales-pdfs/.write-test';
     try {
         \App\Support\StoragePaths::putGeneratedFile($probe, 'ok');
-        \Illuminate\Support\Facades\Storage::disk('local')->delete($probe);
+        foreach (['barbin', 'local'] as $disk) {
+            if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($probe)) {
+                \Illuminate\Support\Facades\Storage::disk($disk)->delete($probe);
+            }
+        }
         $this->info('storage/app/private قابل نوشتن است.');
     } catch (\Throwable $e) {
         $this->error($e->getMessage());
