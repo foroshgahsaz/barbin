@@ -104,6 +104,10 @@ abstract class BotApiChannelDriver implements MessengerDriverInterface
             return 'بات حق ارسال پیام در کانال را ندارد — در تنظیمات ادمین کانال، Post Messages را فعال کنید.';
         }
 
+        if (stripos($error, "can't send messages to the bot") !== false) {
+            return 'شناسه کانال اشتباه است (به نظر chat_id خود بات است). شناسه کانال را بگذارید: @username کانال یا -100… — نه توکن و نه آیدی بات.';
+        }
+
         return $error;
     }
 }

@@ -18,16 +18,21 @@ final class LaravelLogReader
      */
     public function listLogFiles(): array
     {
-        $dir = storage_path('logs');
-        if (! is_dir($dir)) {
-            return [];
+        $files = [];
+
+        foreach ([storage_path('app/logs'), storage_path('logs')] as $dir) {
+            if (! is_dir($dir)) {
+                continue;
+            }
+
+            foreach (glob($dir.'/laravel*.log') ?: [] as $path) {
+                $files[$path] = filemtime($path) ?: 0;
+            }
         }
 
-        $files = glob($dir.'/laravel*.log') ?: [];
+        arsort($files);
 
-        usort($files, fn (string $a, string $b) => filemtime($b) <=> filemtime($a));
-
-        return array_map(fn (string $path) => basename($path), $files);
+        return array_map(fn (string $path): string => basename($path), array_keys($files));
     }
 
     /**
@@ -47,7 +52,7 @@ final class LaravelLogReader
             throw new \InvalidArgumentException('فقط فایل‌های laravel*.log مجاز است.');
         }
 
-        $path = storage_path('logs/'.$basename);
+        $path = $this->resolveLogPath($basename);
         if (! is_file($path) || ! is_readable($path)) {
             return [
                 'exists' => false,
@@ -139,6 +144,17 @@ final class LaravelLogReader
             'headline' => $headline,
             'body' => implode("\n", array_slice($lines, 1)),
         ];
+    }
+
+    private function resolveLogPath(string $basename): string
+    {
+        foreach ([storage_path('app/logs/'.$basename), storage_path('logs/'.$basename)] as $path) {
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return storage_path('logs/'.$basename);
     }
 
     private function humanSize(int $bytes): string
