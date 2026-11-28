@@ -37,6 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return;
             }
 
+            if (AdminErrorLogger::isLoggingInfrastructureFailure($e)) {
+                return;
+            }
+
             AdminErrorLogger::fromThrowable($e);
         });
     })->create();

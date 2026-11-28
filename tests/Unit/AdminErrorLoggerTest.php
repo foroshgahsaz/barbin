@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Logs\AdminErrorLogger;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use UnexpectedValueException;
 
 class AdminErrorLoggerTest extends TestCase
 {
@@ -25,5 +26,12 @@ class AdminErrorLoggerTest extends TestCase
         $log = ApplicationErrorLog::query()->first();
         $this->assertSame('messenger.test', $log->source);
         $this->assertSame($user->id, $log->user_id);
+    }
+
+    public function test_skips_logging_infrastructure_exceptions(): void
+    {
+        $e = new UnexpectedValueException('The stream or file "/var/www/storage/logs/laravel.log" could not be opened');
+
+        $this->assertTrue(AdminErrorLogger::isLoggingInfrastructureFailure($e));
     }
 }

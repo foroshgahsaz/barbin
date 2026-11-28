@@ -32,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
+        \App\Support\LoggingPaths::ensureWritableTree();
+
         try {
             \App\Support\StoragePaths::touchStorageTree();
         } catch (\Throwable $e) {
