@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Support\DeployProbe;
 use Filament\Widgets\Widget;
 
 class DeployVersionWidget extends Widget
@@ -22,23 +23,19 @@ class DeployVersionWidget extends Widget
      */
     public function featureChecks(): array
     {
-        return [
-            ['label' => 'لاگ خطاها (پنل)', 'ok' => file_exists(app_path('Filament/Pages/LaravelLogViewerPage.php'))],
-            ['label' => 'تلگرام (درایور)', 'ok' => file_exists(app_path('Services/Messengers/TelegramDriver.php'))],
-            ['label' => 'تاریخ شمسی', 'ok' => file_exists(app_path('Support/JalaliDate.php'))],
-            ['label' => 'نمودارهای تحلیل', 'ok' => file_exists(app_path('Filament/Widgets/Analytics/StockStatusDoughnutChart.php'))],
-            ['label' => 'PDF بدون mkdir مستقیم', 'ok' => file_exists(app_path('Support/StoragePaths.php'))],
-        ];
+        return array_map(
+            fn (array $row): array => ['label' => $row['label'], 'ok' => $row['ok']],
+            DeployProbe::checks(),
+        );
     }
 
     public function allFeaturesOk(): bool
     {
-        foreach ($this->featureChecks() as $row) {
-            if (! $row['ok']) {
-                return false;
-            }
-        }
+        return DeployProbe::allOk();
+    }
 
-        return true;
+    public function deployReport(): array
+    {
+        return DeployProbe::report();
     }
 }

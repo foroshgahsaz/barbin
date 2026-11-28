@@ -7,6 +7,7 @@ use App\Models\InventoryImportBatch;
 use App\Models\InventorySnapshot;
 use App\Models\InventorySnapshotItem;
 use App\Models\User;
+use App\Services\Catalog\CatalogProductSyncService;
 use App\Services\Excel\ColumnResolver;
 use App\Services\Audit\AuditLogger;
 use App\Support\NumericCell;
@@ -123,7 +124,7 @@ class InventoryImportService
         ]);
     }
 
-    public function confirm(InventoryImportBatch $batch): InventorySnapshot
+    public function confirm(InventoryImportBatch $batch, bool $seedCatalogReference = false): InventorySnapshot
     {
         if ($batch->status === ImportBatchStatus::Confirmed) {
             return $batch->snapshot ?? throw new \RuntimeException('Snapshot missing');
@@ -136,7 +137,7 @@ class InventoryImportService
             throw new \InvalidArgumentException('تا زمان رفع کدهای تکراری، تأیید مجاز نیست.');
         }
 
-        return DB::transaction(function () use ($batch, $result, $absolute): InventorySnapshot {
+        return DB::transaction(function () use ($batch, $result, $seedCatalogReference): InventorySnapshot {
             $snapshot = InventorySnapshot::query()->create([
                 'inventory_import_batch_id' => $batch->id,
                 'uploaded_by' => $batch->uploaded_by,
@@ -177,6 +178,8 @@ class InventoryImportService
                 'positive_stock_count' => $result['stats']['positive_stock_count'],
                 'preview_errors' => $result['errors'],
             ]);
+
+            app(CatalogProductSyncService::class)->syncFromImportRows($result['rows'], $seedCatalogReference);
 
             return $snapshot;
         });

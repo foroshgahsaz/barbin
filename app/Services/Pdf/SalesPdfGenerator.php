@@ -6,6 +6,7 @@ use App\Enums\StockMatchStatus;
 use App\Models\ProductImageCode;
 use App\Models\SalesFile;
 use App\Models\SystemSetting;
+use App\Support\MpdfTempDir;
 use App\Support\StoragePaths;
 use App\Support\StockDisplay;
 use Illuminate\Support\Facades\Storage;
@@ -36,12 +37,15 @@ class SalesPdfGenerator
             'directionality' => 'rtl',
             'autoLangToFont' => true,
             'autoScriptToLang' => true,
+            'tempDir' => MpdfTempDir::path(),
         ]);
 
         $mpdf->SetHTMLFooter($this->footerHtml($branding));
         $mpdf->WriteHTML($html);
 
         $relativePath = 'sales-pdfs/'.$salesFile->id.'/'.uniqid('list_', true).'.pdf';
+        StoragePaths::ensureDirectory('sales-pdfs/'.$salesFile->id);
+
         $pdfBinary = $mpdf->Output('', Destination::STRING_RETURN);
         StoragePaths::putGeneratedFile($relativePath, $pdfBinary);
 

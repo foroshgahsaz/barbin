@@ -50,6 +50,7 @@ class DeliveryLogResource extends Resource
                 Tables\Columns\TextColumn::make('customer.mobile')->label('مشتری'),
                 Tables\Columns\TextColumn::make('channel')->label('کانال')->badge(),
                 Tables\Columns\TextColumn::make('status')->label('وضعیت')->badge(),
+                Tables\Columns\TextColumn::make('error_message')->label('خطا')->limit(50)->toggleable(),
                 Tables\Columns\TextColumn::make('attempts')->label('تلاش'),
                 Tables\Columns\TextColumn::make('created_at')->label('زمان')->shamsiDateTime(),
             ])

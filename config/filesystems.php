@@ -32,7 +32,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => env('BARBIN_PRIVATE_ROOT', storage_path('app/private')),
             'serve' => true,
             'throw' => false,
             'report' => false,
@@ -41,7 +41,7 @@ return [
         // خروجی PDF/Excel و فایل‌های عملیاتی — ریشه storage/app (سازگار با Runflare)
         'barbin' => [
             'driver' => 'local',
-            'root' => storage_path('app'),
+            'root' => env('BARBIN_STORAGE_ROOT', storage_path('app')),
             'serve' => false,
             'throw' => false,
             'report' => false,

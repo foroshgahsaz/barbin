@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\ApplicationErrorLog;
 use App\Services\Logs\LaravelLogReader;
 use Filament\Pages\Page;
 use Livewire\Attributes\Computed;
@@ -22,9 +23,12 @@ class LaravelLogViewerPage extends Page
 
     public string $logFile = 'laravel.log';
 
-    public string $viewMode = 'errors';
+    public string $viewMode = 'stored';
 
     public array $payload = [];
+
+    /** @var list<ApplicationErrorLog> */
+    public array $storedErrors = [];
 
     public static function canAccess(): bool
     {
@@ -57,6 +61,17 @@ class LaravelLogViewerPage extends Page
 
     private function reload(LaravelLogReader $reader): void
     {
+        $this->storedErrors = ApplicationErrorLog::query()
+            ->with('user:id,name,email')
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get()
+            ->all();
+
+        if ($this->viewMode === 'stored') {
+            return;
+        }
+
         try {
             $this->payload = $reader->read($this->logFile);
         } catch (\Throwable $e) {

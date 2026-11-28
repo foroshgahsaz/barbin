@@ -26,11 +26,21 @@ class AppServiceProvider extends ServiceProvider
     {
         app()->setLocale(config('app.locale', 'fa'));
 
-        foreach ([storage_path('app'), storage_path('app/private'), storage_path('logs')] as $path) {
+        foreach ([
+            storage_path('app'),
+            storage_path('app/private'),
+            storage_path('framework/cache'),
+            storage_path('framework/sessions'),
+            storage_path('framework/views'),
+            storage_path('logs'),
+        ] as $path) {
             if (! is_dir($path)) {
                 @mkdir($path, 0775, true);
+                @chmod($path, 0775);
             }
         }
+
+        \App\Support\LoggingPaths::ensureWritableTree();
 
         try {
             \App\Support\StoragePaths::touchStorageTree();

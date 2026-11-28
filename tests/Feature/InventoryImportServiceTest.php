@@ -29,9 +29,10 @@ class InventoryImportServiceTest extends TestCase
         $this->assertSame(ImportBatchStatus::Preview, $batch->status);
         $this->assertSame(2, $batch->row_count);
 
-        $snapshot = $service->confirm($batch);
+        $snapshot = $service->confirm($batch, true);
         $this->assertSame(2, $snapshot->items()->count());
         $this->assertSame('00123', $snapshot->items()->where('product_code', '00123')->value('product_code'));
+        $this->assertDatabaseCount('catalog_products', 2);
     }
 
     public function test_import_purchase_price_column(): void
