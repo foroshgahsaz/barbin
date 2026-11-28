@@ -34,4 +34,9 @@ class ProductImage extends Model
     {
         return $this->hasMany(ProductImageCode::class);
     }
+
+    public function catalogProducts(): HasMany
+    {
+        return $this->hasMany(CatalogProduct::class, 'product_image_id');
+    }
 }

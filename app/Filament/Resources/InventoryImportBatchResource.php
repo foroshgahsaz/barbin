@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\ImportBatchStatus;
 use App\Filament\Resources\InventoryImportBatchResource\Pages;
+use App\Models\CatalogProduct;
 use App\Models\InventoryImportBatch;
 use App\Services\Inventory\InventoryImportService;
 use Filament\Forms;
@@ -68,10 +69,28 @@ class InventoryImportBatchResource extends Resource
                     ->visible(fn (InventoryImportBatch $record) => $record->status === ImportBatchStatus::Preview
                         && auth()->user()?->can('inventory.confirm'))
                     ->requiresConfirmation()
-                    ->action(function (InventoryImportBatch $record) {
+                    ->form(function (): array {
+                        $fields = [];
+                        if (! CatalogProduct::query()->exists()) {
+                            $fields[] = Forms\Components\Checkbox::make('seed_catalog_reference')
+                                ->label('ثبت این فایل به‌عنوان لیست مرجع (ایجاد سطر برای هر کد در صف تصویر)')
+                                ->default(true)
+                                ->helperText('برای اولین بار توصیه می‌شود تا همه کدها در صف «تصاویر محصولات» ساخته شوند.');
+                        }
+
+                        return $fields;
+                    })
+                    ->action(function (InventoryImportBatch $record, array $data) {
                         try {
-                            app(InventoryImportService::class)->confirm($record);
-                            Notification::make()->title('موجودی با موفقیت ثبت شد')->success()->send();
+                            $seed = (bool) ($data['seed_catalog_reference'] ?? false);
+                            app(InventoryImportService::class)->confirm($record, $seed);
+                            $message = 'موجودی با موفقیت ثبت شد';
+                            if (CatalogProduct::query()->exists() && ! $seed) {
+                                $message .= ' — کدهای جدید (در صورت وجود) به کاتالوگ افزوده شدند';
+                            } elseif ($seed) {
+                                $message .= ' — لیست مرجع کاتالوگ به‌روز شد';
+                            }
+                            Notification::make()->title($message)->success()->send();
                         } catch (\Throwable $e) {
                             Notification::make()->title($e->getMessage())->danger()->send();
                         }
