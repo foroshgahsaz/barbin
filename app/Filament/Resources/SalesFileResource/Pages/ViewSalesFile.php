@@ -22,8 +22,13 @@ class ViewSalesFile extends ViewRecord
                 TextEntry::make('row_number')->label('ردیف'),
                 TextEntry::make('product_code')->label('کد کالا'),
                 TextEntry::make('description')->label('شرح'),
-                TextEntry::make('stock_quantity')->label('موجودی'),
-                TextEntry::make('stock_status')->label('وضعیت تطبیق'),
+                TextEntry::make('stock_quantity')->label('موجودی')
+                    ->formatStateUsing(fn ($state, $record) => \App\Support\StockDisplay::quantityForDisplay(
+                        $state !== null ? (float) $state : null,
+                        $record->stock_status,
+                    )),
+                TextEntry::make('stock_status')->label('وضعیت تطبیق')
+                    ->formatStateUsing(fn ($state) => $state?->label() ?? '—'),
             ]),
         ]);
     }

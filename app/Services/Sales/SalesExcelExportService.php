@@ -2,8 +2,9 @@
 
 namespace App\Services\Sales;
 
-use App\Enums\StockMatchStatus;
 use App\Models\SalesFile;
+use App\Support\StockDisplay;
+use App\Support\StoragePaths;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -23,28 +24,26 @@ class SalesExcelExportService
 
         $row = 2;
         foreach ($salesFile->items as $item) {
-            $stock = match ($item->stock_status) {
-                StockMatchStatus::NotFound => 'نامشخص',
-                default => (string) ($item->stock_quantity ?? '0'),
-            };
-
             $sheet->fromArray([
                 $item->row_number,
                 $item->product_code,
                 $item->description,
                 $item->unit,
                 $item->price,
-                $stock,
-                $item->stock_status?->value ?? '',
+                StockDisplay::quantityForDisplay(
+                    $item->stock_quantity !== null ? (float) $item->stock_quantity : null,
+                    $item->stock_status,
+                ),
+                $item->stock_status?->label() ?? '—',
             ], null, 'A'.$row);
             $row++;
         }
 
         $relative = 'sales-exports/'.$salesFile->id.'/'.uniqid('export_', true).'.xlsx';
-        $absolute = Storage::disk('local')->path($relative);
-        @mkdir(dirname($absolute), 0775, true);
-
-        (new Xlsx($spreadsheet))->save($absolute);
+        $temp = tempnam(sys_get_temp_dir(), 'barbin_xlsx_');
+        (new Xlsx($spreadsheet))->save($temp);
+        StoragePaths::putGeneratedFile($relative, (string) file_get_contents($temp));
+        @unlink($temp);
 
         $salesFile->update(['output_excel_path' => $relative]);
 

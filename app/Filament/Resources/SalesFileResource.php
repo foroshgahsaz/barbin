@@ -79,7 +79,8 @@ class SalesFileResource extends Resource
                 Tables\Columns\TextColumn::make('title')->label('عنوان')->searchable(),
                 Tables\Columns\TextColumn::make('owner.name')->label('مدیر فروش')->toggleable(),
                 Tables\Columns\TextColumn::make('product_count')->label('تعداد محصول'),
-                Tables\Columns\TextColumn::make('processing_status')->label('وضعیت')->badge(),
+                Tables\Columns\TextColumn::make('processing_status')->label('وضعیت')->badge()
+                    ->formatStateUsing(fn ($state) => $state?->label() ?? $state),
                 Tables\Columns\TextColumn::make('pdf_generated_at')->label('تولید PDF')->shamsiDateTime()->placeholder('—'),
                 Tables\Columns\TextColumn::make('created_at')->label('تاریخ')->shamsiDateTime(),
             ])

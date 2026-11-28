@@ -6,6 +6,8 @@ use App\Enums\StockMatchStatus;
 use App\Models\ProductImageCode;
 use App\Models\SalesFile;
 use App\Models\SystemSetting;
+use App\Support\StoragePaths;
+use App\Support\StockDisplay;
 use Illuminate\Support\Facades\Storage;
 use Mpdf\Mpdf;
 use Mpdf\Output\Destination;
@@ -40,10 +42,8 @@ class SalesPdfGenerator
         $mpdf->WriteHTML($html);
 
         $relativePath = 'sales-pdfs/'.$salesFile->id.'/'.uniqid('list_', true).'.pdf';
-        $absolute = Storage::disk('local')->path($relativePath);
-        @mkdir(dirname($absolute), 0775, true);
-
-        $mpdf->Output($absolute, Destination::FILE);
+        $pdfBinary = $mpdf->Output('', Destination::STRING_RETURN);
+        StoragePaths::putGeneratedFile($relativePath, $pdfBinary);
 
         $salesFile->update([
             'pdf_path' => $relativePath,
@@ -100,10 +100,9 @@ class SalesPdfGenerator
 
     public function formatStockCell(\App\Models\SalesFileItem $item): string
     {
-        return match ($item->stock_status) {
-            StockMatchStatus::NotFound => 'نامشخص',
-            StockMatchStatus::Zero, StockMatchStatus::Matched => (string) ($item->stock_quantity ?? '0'),
-            default => '-',
-        };
+        return StockDisplay::quantityForDisplay(
+            $item->stock_quantity !== null ? (float) $item->stock_quantity : null,
+            $item->stock_status,
+        );
     }
 }

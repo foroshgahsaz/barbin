@@ -48,3 +48,19 @@ Artisan::command('barbin:seed-demo {--force : بدون تأیید}', function ()
 
     return 0;
 })->purpose('سیدر نمایشی ۳ ماه موجودی، فروش و مشتری');
+
+Artisan::command('barbin:ensure-storage', function () {
+    \App\Support\StoragePaths::touchStorageTree();
+    $probe = 'sales-pdfs/.write-test';
+    try {
+        \App\Support\StoragePaths::putGeneratedFile($probe, 'ok');
+        \Illuminate\Support\Facades\Storage::disk('local')->delete($probe);
+        $this->info('storage/app/private قابل نوشتن است.');
+    } catch (\Throwable $e) {
+        $this->error($e->getMessage());
+
+        return 1;
+    }
+
+    return 0;
+})->purpose('ساخت پوشه‌های PDF/Excel و بررسی مجوز storage');
