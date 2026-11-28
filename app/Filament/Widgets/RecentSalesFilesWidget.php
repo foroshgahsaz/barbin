@@ -32,8 +32,8 @@ class RecentSalesFilesWidget extends BaseWidget
             ->columns([
                 Tables\Columns\TextColumn::make('title')->label('عنوان'),
                 Tables\Columns\TextColumn::make('product_count')->label('محصولات'),
-                Tables\Columns\TextColumn::make('pdf_generated_at')->label('PDF')->shamsiDateTime()->placeholder('—'),
-                Tables\Columns\TextColumn::make('created_at')->label('تاریخ')->shamsiDateTime(),
+                Tables\Columns\TextColumn::make('pdf_generated_at')->label('PDF')->shamsiDateTime(withTime: false)->placeholder('—'),
+                Tables\Columns\TextColumn::make('created_at')->label('تاریخ')->shamsiDateTime(withTime: true),
             ])
             ->paginated(false);
     }

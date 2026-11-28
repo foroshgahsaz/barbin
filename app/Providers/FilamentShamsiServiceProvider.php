@@ -16,7 +16,7 @@ class FilamentShamsiServiceProvider extends ServiceProvider
             $pattern ??= $withTime ? 'Y/m/d H:i' : 'Y/m/d';
 
             return $this->formatStateUsing(
-                fn ($state) => JalaliDate::format($state, $pattern),
+                fn ($state) => $state === null || $state === '' ? '—' : JalaliDate::format($state, $pattern),
             );
         });
 
@@ -32,7 +32,7 @@ class FilamentShamsiServiceProvider extends ServiceProvider
             $pattern ??= $withTime ? 'Y/m/d H:i' : 'Y/m/d';
 
             return $this->formatStateUsing(
-                fn ($state) => JalaliDate::format($state, $pattern),
+                fn ($state) => $state === null || $state === '' ? '—' : JalaliDate::format($state, $pattern),
             );
         });
 

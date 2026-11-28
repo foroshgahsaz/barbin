@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\StoragePaths;
 use Illuminate\Support\Facades\Storage;
 
 class SalesFileResource extends Resource
@@ -100,8 +101,8 @@ class SalesFileResource extends Resource
                     }),
                 Tables\Actions\Action::make('download_pdf')
                     ->label('دانلود PDF')
-                    ->visible(fn (SalesFile $record) => $record->pdf_path && Storage::disk('local')->exists($record->pdf_path))
-                    ->action(fn (SalesFile $record) => Storage::disk('local')->download(
+                    ->visible(fn (SalesFile $record) => $record->pdf_path && StoragePaths::exists($record->pdf_path))
+                    ->action(fn (SalesFile $record) => StoragePaths::downloadResponse(
                         $record->pdf_path,
                         $record->title.'.pdf',
                     )),
@@ -113,7 +114,7 @@ class SalesFileResource extends Resource
                         $path = app(SalesExcelExportService::class)->export($record);
                         Notification::make()->title('فایل Excel آماده شد')->success()->send();
 
-                        return Storage::disk('local')->download($path, $record->title.'.xlsx');
+                        return StoragePaths::downloadResponse($path, $record->title.'.xlsx');
                     }),
                 Tables\Actions\Action::make('notify_sms')
                     ->label('پیامک مشتریان')
@@ -162,7 +163,7 @@ class SalesFileResource extends Resource
                     ])
                     ->action(function (SalesFile $record, array $data) {
                         $messenger = Messenger::query()->findOrFail($data['messenger_id']);
-                        $pdf = $record->pdf_path ? Storage::disk('local')->path($record->pdf_path) : null;
+                        $pdf = $record->pdf_path ? StoragePaths::absolutePath($record->pdf_path) : null;
                         $result = app(MessengerManager::class)->driver($messenger)
                             ->sendToChannel((string) $messenger->channel_id, $data['message'], $pdf);
                         if ($result['success'] ?? false) {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PdfAccessToken;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Support\StoragePaths;
 use Symfony\Component\HttpFoundation\Response;
 
 class SecurePdfController extends Controller
@@ -20,14 +20,13 @@ class SecurePdfController extends Controller
         $access->increment('download_count');
         $salesFile = $access->salesFile;
 
-        if (! $salesFile?->pdf_path || ! Storage::disk('local')->exists($salesFile->pdf_path)) {
+        if (! $salesFile?->pdf_path || ! StoragePaths::exists($salesFile->pdf_path)) {
             abort(404, 'فایل PDF یافت نشد.');
         }
 
-        return Storage::disk('local')->download(
+        return StoragePaths::downloadResponse(
             $salesFile->pdf_path,
             $salesFile->title.'.pdf',
-            ['Content-Type' => 'application/pdf']
         );
     }
 }
