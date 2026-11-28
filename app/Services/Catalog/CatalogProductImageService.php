@@ -6,6 +6,7 @@ use App\Models\CatalogProduct;
 use App\Models\ProductImage;
 use App\Models\ProductImageCode;
 use App\Services\ProductImages\ProductImageService;
+use App\Support\MediaPath;
 use App\Support\ProductCode;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -51,7 +52,19 @@ class CatalogProductImageService
 
     public function attachFromStoredPath(CatalogProduct $product, string $relativePath, int $ownerUserId): ProductImage
     {
-        $absolute = Storage::disk('local')->path($relativePath);
+        $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
+        $absolute = MediaPath::absolute($relativePath);
+        if ($absolute === null || ! is_readable($absolute)) {
+            foreach (['local', 'public', 'barbin'] as $disk) {
+                if (Storage::disk($disk)->exists($relativePath)) {
+                    $absolute = Storage::disk($disk)->path($relativePath);
+                    break;
+                }
+            }
+        }
+        if ($absolute === null || ! is_readable($absolute)) {
+            throw new \RuntimeException('فایل تصویر موقت یافت نشد.');
+        }
 
         $file = new UploadedFile($absolute, basename($absolute), null, null, true);
 

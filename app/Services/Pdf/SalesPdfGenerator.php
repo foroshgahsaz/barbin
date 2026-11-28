@@ -2,12 +2,11 @@
 
 namespace App\Services\Pdf;
 
-use App\Models\CatalogProduct;
-use App\Models\ProductImageCode;
 use App\Models\SalesFile;
 use App\Models\SystemSetting;
 use App\Support\MediaPath;
 use App\Support\MpdfTempDir;
+use App\Support\ProductImageLookup;
 use App\Support\SalesOutputFilter;
 use App\Support\StoragePaths;
 use App\Support\StockDisplay;
@@ -23,7 +22,9 @@ class SalesPdfGenerator
 
         $branding = $this->branding();
         $items = SalesOutputFilter::filterItems($salesFile->items);
-        $imageMap = $this->resolveImages($items);
+        $imageMap = ProductImageLookup::mapForCodes(
+            collect($items)->pluck('product_code')->all(),
+        );
 
         $html = view('pdf.sales-list', [
             'salesFile' => $salesFile,
@@ -61,60 +62,6 @@ class SalesPdfGenerator
         ]);
 
         return $relativePath;
-    }
-
-    /**
-     * @param  list<\App\Models\SalesFileItem>  $items
-     * @return array<string, string>
-     */
-    private function resolveImages(array $items): array
-    {
-        $codes = collect($items)->pluck('product_code')->unique()->values()->all();
-        if ($codes === []) {
-            return [];
-        }
-
-        $map = [];
-
-        $catalog = CatalogProduct::query()
-            ->whereIn('product_code', $codes)
-            ->whereNotNull('product_image_id')
-            ->with('image')
-            ->get();
-
-        foreach ($catalog as $product) {
-            if ($product->image && $product->image->is_active) {
-                $rel = $product->image->thumbnail_path ?: $product->image->file_path;
-                $abs = MediaPath::absolute($rel);
-                if ($abs !== null) {
-                    $map[$product->product_code] = $abs;
-                }
-            }
-        }
-
-        $missing = array_diff($codes, array_keys($map));
-        if ($missing !== []) {
-            $links = ProductImageCode::query()
-                ->whereIn('product_code', $missing)
-                ->with('image')
-                ->get();
-
-            foreach ($links as $link) {
-                if (! $link->image || ! $link->image->is_active) {
-                    continue;
-                }
-                if (isset($map[$link->product_code])) {
-                    continue;
-                }
-                $rel = $link->image->thumbnail_path ?: $link->image->file_path;
-                $abs = MediaPath::absolute($rel);
-                if ($abs !== null) {
-                    $map[$link->product_code] = $abs;
-                }
-            }
-        }
-
-        return $map;
     }
 
     private function branding(): array

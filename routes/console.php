@@ -190,3 +190,28 @@ Artisan::command('barbin:publish-product-images', function () {
 
     return 0;
 })->purpose('کپی تصاویر محصول از دیسک خصوصی به public/storage برای URL وب');
+
+Artisan::command('barbin:diagnose-pdf-images {salesFileId}', function (int $salesFileId) {
+    $file = \App\Models\SalesFile::query()->with('items')->find($salesFileId);
+    if ($file === null) {
+        $this->error('SalesFile not found: '.$salesFileId);
+
+        return 1;
+    }
+    $items = \App\Support\SalesOutputFilter::filterItems($file->items);
+    $codes = collect($items)->pluck('product_code')->unique()->values();
+    $map = \App\Support\ProductImageLookup::mapForCodes($codes->all());
+    $this->info('items in PDF: '.$codes->count());
+    $this->info('images resolved: '.count($map));
+    foreach ($codes->take(20) as $code) {
+        $norm = \App\Support\ProductCode::normalize($code);
+        $path = $map[$norm] ?? null;
+        $catalog = \App\Models\CatalogProduct::query()->where('product_code', $norm)->first();
+        $status = $path !== null ? 'OK '.$path : 'MISSING';
+        $imgId = $catalog?->product_image_id;
+        $fp = $catalog?->image?->file_path;
+        $this->line("{$norm} | catalog_img={$imgId} | file={$fp} | {$status}");
+    }
+
+    return 0;
+})->purpose('خطایابی تصاویر PDF برای یک فایل فروش');
