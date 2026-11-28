@@ -11,14 +11,15 @@ Artisan::command('inspire', function () {
 
 Artisan::command('barbin:verify-deploy', function () {
     $checks = [
-        'ResetAdminPasswordCommand' => file_exists(app_path('Console/Commands/ResetAdminPasswordCommand.php')),
-        'ProductImageResource' => file_exists(app_path('Filament/Resources/ProductImageResource.php')),
-        'WarehouseAnalyticsPage' => file_exists(app_path('Filament/Pages/WarehouseAnalyticsPage.php')),
-        'BrandingSettingsPage' => file_exists(app_path('Filament/Pages/BrandingSettingsPage.php')),
-        'UserResource' => file_exists(app_path('Filament/Resources/UserResource.php')),
+        'LaravelLogViewerPage' => file_exists(app_path('Filament/Pages/LaravelLogViewerPage.php')),
+        'TelegramDriver' => file_exists(app_path('Services/Messengers/TelegramDriver.php')),
+        'JalaliDate' => file_exists(app_path('Support/JalaliDate.php')),
+        'StoragePaths (PDF)' => file_exists(app_path('Support/StoragePaths.php')),
+        'AnalyticsCharts' => file_exists(app_path('Filament/Widgets/Analytics/StockStatusDoughnutChart.php')),
+        'ExecutiveAnalyticsPage' => file_exists(app_path('Filament/Pages/ExecutiveAnalyticsPage.php')),
+        'barbin:ensure-storage' => true,
         'MessengerResource' => file_exists(app_path('Filament/Resources/MessengerResource.php')),
-        'CustomerGroupResource' => file_exists(app_path('Filament/Resources/CustomerGroupResource.php')),
-        'DeliveryLogResource' => file_exists(app_path('Filament/Resources/DeliveryLogResource.php')),
+        'WarehouseAnalyticsPage' => file_exists(app_path('Filament/Pages/WarehouseAnalyticsPage.php')),
     ];
 
     $allOk = true;
@@ -30,7 +31,10 @@ Artisan::command('barbin:verify-deploy', function () {
     }
 
     $this->line('Permissions in DB: '.Permission::count());
-    $this->line('Git hint: image باید از main بعد از merge PR #7 ساخته شده باشد.');
+    $this->line('هدف: همه [OK] — شاخه deploy باید main (بعد از merge PR #15، commit 164d619+).');
+    if (is_file(base_path('.git/HEAD'))) {
+        $this->line('HEAD: '.trim((string) file_get_contents(base_path('.git/HEAD'))));
+    }
 
     if (! $allOk) {
         $this->error('کد قدیمی است — Runflare را Redeploy کنید از آخرین main.');

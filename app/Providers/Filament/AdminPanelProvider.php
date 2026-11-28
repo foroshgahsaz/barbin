@@ -73,6 +73,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\BarbinStatsWidget::class,
                 \App\Filament\Widgets\RecentSalesFilesWidget::class,
                 \App\Filament\Widgets\ExecutiveSummaryWidget::class,
+                \App\Filament\Widgets\DeployVersionWidget::class,
                 Widgets\AccountWidget::class,
             ])
             ->middleware([
