@@ -64,11 +64,14 @@ php artisan barbin:storage-repair
 یا دستی (کاربر PHP اغلب `www-data` است — در خروجی diagnose چک کنید):
 
 ```bash
-chown -R www-data:www-data /var/www/storage/app
-chmod -R ug+rwx /var/www/storage/app
-mkdir -p /var/www/storage/app/private
+chown -R www-data:www-data /var/www/storage
+chmod -R ug+rwx /var/www/storage
+mkdir -p /var/www/storage/app/private /var/www/storage/framework/views
+php artisan optimize:clear
 php artisan barbin:ensure-storage
 ```
+
+**مهم:** دستورات `php artisan` را در پاد با **root** نزنید مگر بلافاصله `chown www-data` روی `storage` بزنید — وگرنه پوشه‌ها `root:root` و `700` می‌شوند و سایت با خطای `tempnam()` می‌افتد.
 
 **نکته:** اگر در shell با `root` تست کنید ولی وب با `www-data`، فقط repair با chown به `www-data` مشکل را حل می‌کند.
 

@@ -200,16 +200,20 @@ final class StoragePaths
             }
         }
 
-        if (@mkdir($absolute, 0775)) {
-            return true;
-        }
+        if (@mkdir($absolute, 0775) || @mkdir($absolute, 0777)) {
+            @chmod($absolute, 0775);
 
-        if (@mkdir($absolute, 0777)) {
             return true;
         }
 
         clearstatcache(true, $absolute);
 
-        return is_dir($absolute);
+        if (is_dir($absolute)) {
+            @chmod($absolute, 0775);
+
+            return true;
+        }
+
+        return false;
     }
 }

@@ -118,8 +118,12 @@ final class StorageDiagnostics
             $cmds[] = "chmod -R ug+rwx {$root}";
         }
 
-        $cmds[] = 'mkdir -p '.storage_path('logs').' '.storage_path('app/logs');
-        $cmds[] = "chown -R {$user}:{$user} ".storage_path('logs').' '.storage_path('framework');
+        $storage = storage_path();
+        $cmds[] = "mkdir -p {$storage}/framework/cache {$storage}/framework/sessions {$storage}/framework/views {$storage}/logs {$storage}/app/logs";
+        $cmds[] = "chown -R {$user}:{$user} {$storage}";
+        $cmds[] = "chmod -R ug+rwx {$storage}";
+        $cmds[] = 'find '.$storage." -type d -exec chmod ug+rwx {} \\;";
+        $cmds[] = 'php artisan optimize:clear';
         $cmds[] = 'php artisan barbin:ensure-storage';
 
         return $cmds;
