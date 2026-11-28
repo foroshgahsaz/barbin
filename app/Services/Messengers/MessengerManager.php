@@ -11,6 +11,7 @@ class MessengerManager
     {
         return match ($messenger->driver) {
             'bale' => new BaleDriver($messenger),
+            'telegram' => new TelegramDriver($messenger),
             'rubika' => new RubikaDriver($messenger),
             default => throw new InvalidArgumentException("Driver {$messenger->driver} پشتیبانی نمی‌شود."),
         };

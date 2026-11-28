@@ -41,6 +41,6 @@
 ## تنظیمات لازم برای SMS و پیام‌رسان
 
 - پنل Filament → تنظیمات SMS.ir (API Key، Template ID، پارامترهای JSON مطابق پنل SMS.ir)
-- جدول `messengers` برای بله/روبیکا (از Filament یا دیتابیس)
+- جدول `messengers` برای **تلگرام**، بله، روبیکا — راهنمای تلگرام: [`documentation/telegram-setup.md`](documentation/telegram-setup.md)
 
 فایل‌های واقعی آپلود و PDF در `storage/app/private` نگهداری می‌شوند.

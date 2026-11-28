@@ -7,6 +7,7 @@ use App\Models\Messenger;
 use App\Services\Messengers\MessengerManager;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -31,13 +32,24 @@ class MessengerResource extends Resource
     {
         return $form->schema([
             Forms\Components\Select::make('driver')->label('درایور')->options([
+                'telegram' => 'تلگرام',
                 'bale' => 'بله',
                 'rubika' => 'روبیکا',
-            ])->required(),
+            ])->required()->live(),
             Forms\Components\TextInput::make('name')->label('نام')->required(),
-            Forms\Components\TextInput::make('bot_token')->label('Bot Token')->password()->revealable()->required(),
-            Forms\Components\TextInput::make('channel_id')->label('Channel ID'),
-            Forms\Components\TextInput::make('channel_name')->label('نام کانال'),
+            Forms\Components\TextInput::make('bot_token')->label('Bot Token')->password()->revealable()->required()
+                ->helperText(fn (Get $get): string => match ($get('driver')) {
+                    'telegram' => 'از @BotFather — مثال: 123456789:AAH…',
+                    'bale' => 'توکن ربات از پنل بله',
+                    default => '',
+                }),
+            Forms\Components\TextInput::make('channel_id')->label('شناسه کانال')
+                ->helperText(fn (Get $get): string => match ($get('driver')) {
+                    'telegram' => 'بات را ادمین کانال کنید. @username کانال یا عددی مثل -1001234567890',
+                    'bale' => 'شناسه عددی کانال بله',
+                    default => 'در صورت نیاز',
+                }),
+            Forms\Components\TextInput::make('channel_name')->label('نام کانال (یادداشت)'),
             Forms\Components\Toggle::make('is_active')->label('فعال'),
         ]);
     }
@@ -47,7 +59,13 @@ class MessengerResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('نام'),
-                Tables\Columns\TextColumn::make('driver')->label('درایور')->badge(),
+                Tables\Columns\TextColumn::make('driver')->label('درایور')->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'telegram' => 'تلگرام',
+                        'bale' => 'بله',
+                        'rubika' => 'روبیکا',
+                        default => $state,
+                    }),
                 Tables\Columns\IconColumn::make('is_active')->boolean()->label('فعال'),
                 Tables\Columns\TextColumn::make('last_success_at')->shamsiDateTime()->label('آخرین موفق'),
             ])
