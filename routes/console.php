@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\ResetAdminPasswordCommand;
+use App\Support\DeployProbe;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Spatie\Permission\Models\Permission;
@@ -10,34 +11,27 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('barbin:verify-deploy', function () {
-    $checks = [
-        'LaravelLogViewerPage' => file_exists(app_path('Filament/Pages/LaravelLogViewerPage.php')),
-        'TelegramDriver' => file_exists(app_path('Services/Messengers/TelegramDriver.php')),
-        'JalaliDate' => file_exists(app_path('Support/JalaliDate.php')),
-        'StoragePaths (PDF)' => file_exists(app_path('Support/StoragePaths.php')),
-        'AnalyticsCharts' => file_exists(app_path('Filament/Widgets/Analytics/StockStatusDoughnutChart.php')),
-        'ExecutiveAnalyticsPage' => file_exists(app_path('Filament/Pages/ExecutiveAnalyticsPage.php')),
-        'barbin:ensure-storage' => true,
-        'MessengerResource' => file_exists(app_path('Filament/Resources/MessengerResource.php')),
-        'WarehouseAnalyticsPage' => file_exists(app_path('Filament/Pages/WarehouseAnalyticsPage.php')),
-    ];
-
+    $report = DeployProbe::report();
     $allOk = true;
-    foreach ($checks as $name => $ok) {
-        $this->line(($ok ? '[OK]' : '[MISSING]').' '.$name);
-        if (! $ok) {
+
+    foreach ($report['checks'] as $row) {
+        $this->line(($row['ok'] ? '[OK]' : '[MISSING]').' '.$row['label']);
+        if (! $row['ok']) {
             $allOk = false;
         }
     }
 
+    $this->newLine();
+    $this->line($report['expected_merge']);
+    $this->line('فونت: '.$report['urls']['peyda_font']);
     $this->line('Permissions in DB: '.Permission::count());
-    $this->line('هدف: همه [OK] — شاخه deploy باید main (بعد از merge PR #15، commit 164d619+).');
+
     if (is_file(base_path('.git/HEAD'))) {
         $this->line('HEAD: '.trim((string) file_get_contents(base_path('.git/HEAD'))));
     }
 
     if (! $allOk) {
-        $this->error('کد قدیمی است — Runflare را Redeploy کنید از آخرین main.');
+        $this->error('کد قدیمی یا ناقص — Runflare را از main Redeploy کنید (بدون کش image).');
     }
 
     return $allOk ? 0 : 1;
