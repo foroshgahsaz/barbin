@@ -48,6 +48,37 @@ Artisan::command('barbin:seed-demo {--force : بدون تأیید}', function ()
     return 0;
 })->purpose('سیدر نمایشی ۳ ماه موجودی، فروش و مشتری');
 
+Artisan::command('barbin:test-pdf {sales_file_id? : شناسه فایل فروش}', function () {
+    $id = $this->argument('sales_file_id');
+    $salesFile = $id
+        ? \App\Models\SalesFile::query()->find($id)
+        : \App\Models\SalesFile::query()->latest('id')->first();
+
+    if (! $salesFile) {
+        $this->error('فایل فروشی در دیتابیس نیست.');
+
+        return 1;
+    }
+
+    $this->line('Sales file #'.$salesFile->id.' — '.$salesFile->title);
+
+    try {
+        $path = app(\App\Services\Pdf\SalesPdfGenerator::class)->generate($salesFile);
+        $absolute = \App\Support\StoragePaths::absolutePath($path);
+        $size = is_file($absolute) ? filesize($absolute) : 0;
+        $this->info('PDF_OK');
+        $this->line('relative: '.$path);
+        $this->line('absolute: '.$absolute);
+        $this->line('bytes: '.$size);
+
+        return 0;
+    } catch (\Throwable $e) {
+        $this->error('PDF_FAIL: '.$e->getMessage());
+
+        return 1;
+    }
+})->purpose('تست تولید PDF بدون tinker');
+
 Artisan::command('barbin:storage-diagnose', function () {
     $report = StorageDiagnostics::run();
     $this->line(StorageDiagnostics::formatForConsole($report));

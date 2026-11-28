@@ -11,8 +11,8 @@ final class StorageDiagnostics
      */
     public static function run(): array
     {
-        $phpUser = self::phpProcessUser();
         $shellUser = self::shellUser();
+        $phpUser = self::webPhpUser();
 
         $disks = [
             'barbin' => (string) config('filesystems.disks.barbin.root'),
@@ -35,7 +35,7 @@ final class StorageDiagnostics
             'barbin_files_disk' => BarbinStorage::diskName(),
             'disks' => $paths,
             'write_probes' => $probeResults,
-            'fix_as_root' => self::fixCommands($disks, $phpUser),
+            'fix_as_root' => self::fixCommands($disks, $phpUser, $shellUser),
         ];
     }
 
@@ -44,7 +44,8 @@ final class StorageDiagnostics
         $lines = [];
         $lines[] = '=== Barbin Storage Diagnostics ===';
         $lines[] = 'Shell (شما در ترمینال): '.$report['shell_user'];
-        $lines[] = 'PHP (وب/Livewire): '.$report['php_user'];
+        $lines[] = 'PHP-FPM (وب/Livewire): '.$report['php_user'];
+        $lines[] = 'CLI artisan (ترمینال): '.$report['shell_user'];
         $lines[] = 'BARBIN_FILES_DISK: '.$report['barbin_files_disk'];
         $lines[] = '';
 
@@ -101,12 +102,31 @@ final class StorageDiagnostics
     }
 
     /**
+     * کاربر pool اپ (نه root داخل artisan).
+     */
+    public static function webPhpUser(): string
+    {
+        $line = shell_exec("ps aux 2>/dev/null | grep 'php-fpm: pool' | grep -v grep | head -1");
+        if (is_string($line) && preg_match('/^\s*(\S+)/', $line, $m)) {
+            $user = $m[1];
+            if ($user !== 'root') {
+                return $user;
+            }
+        }
+
+        return 'www-data';
+    }
+
+    /**
      * @param  array<string, string>  $disks
      * @return list<string>
      */
-    private static function fixCommands(array $disks, string $phpUser): array
+    private static function fixCommands(array $disks, string $phpUser, string $shellUser): array
     {
-        $user = $phpUser !== 'unknown' ? $phpUser : 'www-data';
+        $user = $phpUser;
+        if ($user === 'root' || $user === 'unknown') {
+            $user = 'www-data';
+        }
         $cmds = [];
 
         foreach (array_unique(array_values($disks)) as $root) {
@@ -114,7 +134,7 @@ final class StorageDiagnostics
                 continue;
             }
             $cmds[] = "mkdir -p {$root}";
-            $cmds[] = "chown -R {$user}:{$user} {$root}";
+                $cmds[] = "chown -R {$user}:{$user} {$root}";
             $cmds[] = "chmod -R ug+rwx {$root}";
         }
 
