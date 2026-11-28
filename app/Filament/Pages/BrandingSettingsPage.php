@@ -50,7 +50,7 @@ class BrandingSettingsPage extends Page implements HasForms
             TextInput::make('phone')->label('تلفن'),
             TextInput::make('website')->label('وب‌سایت'),
             TextInput::make('address')->label('آدرس'),
-            FileUpload::make('logo_path')->label('لوگو')->image()->disk('local')->directory('branding'),
+            FileUpload::make('logo_path')->label('لوگو')->image()->disk('public')->directory('branding'),
         ])->statePath('data');
     }
 

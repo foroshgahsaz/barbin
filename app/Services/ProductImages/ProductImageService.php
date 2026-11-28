@@ -4,6 +4,7 @@ namespace App\Services\ProductImages;
 
 use App\Models\ProductImage;
 use App\Models\ProductImageCode;
+use App\Support\MediaPath;
 use App\Support\ProductCode;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +26,7 @@ class ProductImageService
         $name = Str::uuid()->toString().'.'.$ext;
         $path = 'product-images/'.$ownerUserId.'/'.$name;
 
-        Storage::disk('local')->put($path, file_get_contents($file->getRealPath()));
+        Storage::disk(MediaPath::storeDisk())->put($path, file_get_contents($file->getRealPath()));
 
         $thumbPath = $this->createThumbnail($file->getRealPath(), $ownerUserId, $ext, $path);
 
@@ -69,7 +70,7 @@ class ProductImageService
     {
         $thumbName = 'thumb_'.Str::uuid()->toString().'.'.$ext;
         $thumbPath = 'product-images/'.$ownerUserId.'/thumbs/'.$thumbName;
-        $absoluteThumb = Storage::disk('local')->path($thumbPath);
+        $absoluteThumb = Storage::disk(MediaPath::storeDisk())->path($thumbPath);
         @mkdir(dirname($absoluteThumb), 0775, true);
 
         try {
