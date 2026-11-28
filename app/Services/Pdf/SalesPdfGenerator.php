@@ -2,11 +2,13 @@
 
 namespace App\Services\Pdf;
 
-use App\Enums\StockMatchStatus;
+use App\Models\CatalogProduct;
 use App\Models\ProductImageCode;
 use App\Models\SalesFile;
 use App\Models\SystemSetting;
+use App\Support\MediaPath;
 use App\Support\MpdfTempDir;
+use App\Support\SalesOutputFilter;
 use App\Support\StoragePaths;
 use App\Support\StockDisplay;
 use Illuminate\Support\Facades\Storage;
@@ -20,24 +22,28 @@ class SalesPdfGenerator
         $salesFile->loadMissing(['items', 'owner']);
 
         $branding = $this->branding();
-
-        $imageMap = $this->resolveImages($salesFile);
+        $items = SalesOutputFilter::filterItems($salesFile->items);
+        $imageMap = $this->resolveImages($items);
 
         $html = view('pdf.sales-list', [
             'salesFile' => $salesFile,
-            'items' => $salesFile->items,
+            'items' => $items,
             'branding' => $branding,
             'imageMap' => $imageMap,
         ])->render();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
-            'format' => 'A4-L',
+            'format' => 'A4',
             'default_font' => 'dejavusans',
             'directionality' => 'rtl',
             'autoLangToFont' => true,
             'autoScriptToLang' => true,
             'tempDir' => MpdfTempDir::path(),
+            'margin_left' => 8,
+            'margin_right' => 8,
+            'margin_top' => 8,
+            'margin_bottom' => 18,
         ]);
 
         $mpdf->SetHTMLFooter($this->footerHtml($branding));
@@ -58,24 +64,53 @@ class SalesPdfGenerator
     }
 
     /**
+     * @param  list<\App\Models\SalesFileItem>  $items
      * @return array<string, string>
      */
-    private function resolveImages(SalesFile $salesFile): array
+    private function resolveImages(array $items): array
     {
-        $codes = $salesFile->items->pluck('product_code')->unique()->values();
-        $links = ProductImageCode::query()
+        $codes = collect($items)->pluck('product_code')->unique()->values()->all();
+        if ($codes === []) {
+            return [];
+        }
+
+        $map = [];
+
+        $catalog = CatalogProduct::query()
             ->whereIn('product_code', $codes)
+            ->whereNotNull('product_image_id')
             ->with('image')
             ->get();
 
-        $map = [];
-        foreach ($links as $link) {
-            if (! $link->image || ! $link->image->is_active) {
-                continue;
+        foreach ($catalog as $product) {
+            if ($product->image && $product->image->is_active) {
+                $rel = $product->image->thumbnail_path ?: $product->image->file_path;
+                $abs = MediaPath::absolute($rel);
+                if ($abs !== null) {
+                    $map[$product->product_code] = $abs;
+                }
             }
-            if (! isset($map[$link->product_code])) {
+        }
+
+        $missing = array_diff($codes, array_keys($map));
+        if ($missing !== []) {
+            $links = ProductImageCode::query()
+                ->whereIn('product_code', $missing)
+                ->with('image')
+                ->get();
+
+            foreach ($links as $link) {
+                if (! $link->image || ! $link->image->is_active) {
+                    continue;
+                }
+                if (isset($map[$link->product_code])) {
+                    continue;
+                }
                 $rel = $link->image->thumbnail_path ?: $link->image->file_path;
-                $map[$link->product_code] = Storage::disk('local')->path($rel);
+                $abs = MediaPath::absolute($rel);
+                if ($abs !== null) {
+                    $map[$link->product_code] = $abs;
+                }
             }
         }
 
@@ -84,12 +119,22 @@ class SalesPdfGenerator
 
     private function branding(): array
     {
+        $logoPath = SystemSetting::getValue('branding', 'logo_path');
+        $logoAbsolute = null;
+        if (filled($logoPath)) {
+            $path = is_array($logoPath) ? ($logoPath[0] ?? null) : $logoPath;
+            if (filled($path)) {
+                $logoAbsolute = MediaPath::absolute((string) $path);
+            }
+        }
+
         return [
             'company_name' => SystemSetting::getValue('branding', 'company_name', config('app.name')),
             'phone' => SystemSetting::getValue('branding', 'phone', ''),
             'website' => SystemSetting::getValue('branding', 'website', ''),
             'address' => SystemSetting::getValue('branding', 'address', ''),
-            'logo_path' => SystemSetting::getValue('branding', 'logo_path'),
+            'logo_path' => $logoPath,
+            'logo_absolute' => $logoAbsolute,
         ];
     }
 

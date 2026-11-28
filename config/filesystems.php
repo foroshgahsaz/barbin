@@ -49,7 +49,7 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => rtrim(env('BARBIN_STORAGE_ROOT', storage_path('app')), DIRECTORY_SEPARATOR).'/public',
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,

@@ -70,7 +70,7 @@ class CatalogProductResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image.thumbnail_path')
                     ->label('تصویر')
-                    ->disk('local')
+                    ->disk('public')
                     ->defaultImageUrl(fn () => null),
                 Tables\Columns\TextColumn::make('product_code')->label('کد کالا')->searchable()->sortable()->copyable(),
                 Tables\Columns\TextColumn::make('description')->label('شرح کالا')->searchable()->wrap(),
