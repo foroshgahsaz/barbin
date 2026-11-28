@@ -41,13 +41,10 @@
                     <td>{{ $item->description }}</td>
                     <td>{{ $item->unit }}</td>
                     <td>{{ $item->price !== null ? number_format((float) $item->price, 0) : '-' }}</td>
-                    <td>
-                        @if($item->stock_status === \App\Enums\StockMatchStatus::NotFound)
-                            نامشخص
-                        @else
-                            {{ number_format((float) ($item->stock_quantity ?? 0), 0) }}
-                        @endif
-                    </td>
+                    <td>{{ \App\Support\StockDisplay::quantityForDisplay(
+                        $item->stock_quantity !== null ? (float) $item->stock_quantity : null,
+                        $item->stock_status,
+                    ) }}</td>
                     <td style="text-align:center;">
                         @php($path = $imageMap[$item->product_code] ?? null)
                         @if($path && file_exists($path))

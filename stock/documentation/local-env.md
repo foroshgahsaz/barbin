@@ -19,6 +19,7 @@ php artisan serve
 | `APP_URL` | `.env` — برای لینک امن PDF حتماً دامنه واقعی در پروداکشن |
 | `SMS_IR_BASE_URL` | `.env` (اختیاری) |
 | SMS.ir API Key، Template، پارامتر الگو | Filament → تنظیمات SMS.ir |
+| Telegram | جدول `messengers` (driver=`telegram`) — [`telegram-setup.md`](telegram-setup.md) |
 | Bale Bot Token | جدول `messengers` (driver=`bale`) |
 | Rubika | `ROUBIKA_SEND_ENDPOINT` + رکورد `messengers` |
 | نام شرکت، لوگو PDF | `system_settings` گروه `branding` (فعلاً از seed/دیتابیس) |

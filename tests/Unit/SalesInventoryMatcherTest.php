@@ -36,4 +36,10 @@ class SalesInventoryMatcherTest extends TestCase
         $this->assertSame(StockMatchStatus::Matched, $result['status']);
         $this->assertSame(12.0, $result['quantity']);
     }
+
+    public function test_stock_quantity_rounded(): void
+    {
+        $result = $this->matcher->match('A1', ['A1' => 17.68], true);
+        $this->assertSame(18.0, $result['quantity']);
+    }
 }

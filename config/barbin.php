@@ -21,4 +21,7 @@ return [
     'sms_ir' => [
         'base_url' => env('SMS_IR_BASE_URL', 'https://api.sms.ir/v1'),
     ],
+    'telegram' => [
+        'api_base' => env('TELEGRAM_API_BASE', 'https://api.telegram.org'),
+    ],
 ];

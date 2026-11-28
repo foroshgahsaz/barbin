@@ -39,11 +39,12 @@ class SalesInventoryMatcher
         }
 
         $qty = (float) $stockMap[$code];
+        $qtyRounded = round($qty);
 
-        if ($qty > 0) {
+        if ($qtyRounded > 0) {
             return [
                 'status' => StockMatchStatus::Matched,
-                'quantity' => $qty,
+                'quantity' => (float) $qtyRounded,
                 'notes' => null,
             ];
         }
