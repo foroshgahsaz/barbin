@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Messenger;
 use App\Models\SalesFile;
 use App\Services\Messengers\MessengerManager;
+use App\Services\Logs\AdminErrorLogger;
 use App\Services\Pdf\SalesPdfGenerator;
 use App\Services\Sales\SalesExcelExportService;
 use Filament\Forms;
@@ -153,7 +154,7 @@ class SalesFileResource extends Resource
                 Tables\Actions\Action::make('send_channel')
                     ->label('ارسال به کانال')
                     ->icon('heroicon-o-paper-airplane')
-                    ->visible(fn (SalesFile $record) => auth()->user()?->canNotifySales() && $record->pdf_path)
+                    ->visible(fn () => auth()->user()?->canNotifySales())
                     ->form([
                         Forms\Components\Select::make('messenger_id')
                             ->label('پیام‌رسان')
@@ -163,7 +164,36 @@ class SalesFileResource extends Resource
                     ])
                     ->action(function (SalesFile $record, array $data) {
                         $messenger = Messenger::query()->findOrFail($data['messenger_id']);
-                        $pdf = $record->pdf_path ? StoragePaths::absolutePath($record->pdf_path) : null;
+
+                        if (! $record->pdf_path || ! StoragePaths::exists($record->pdf_path)) {
+                            try {
+                                app(SalesPdfGenerator::class)->generate($record);
+                                $record->refresh();
+                            } catch (\Throwable $e) {
+                                AdminErrorLogger::record('sales.send_channel', $e->getMessage(), context: [
+                                    'sales_file_id' => $record->id,
+                                ]);
+                                Notification::make()
+                                    ->title('تولید PDF قبل از ارسال ممکن نشد')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+                        }
+
+                        $pdf = StoragePaths::absolutePath((string) $record->pdf_path);
+                        if (! is_file($pdf)) {
+                            Notification::make()
+                                ->title('فایل PDF روی دیسک نیست')
+                                ->body('دیسک دائم را mount کنید یا دوباره «تولید PDF» را بزنید.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
                         $result = app(MessengerManager::class)->driver($messenger)
                             ->sendToChannel((string) $messenger->channel_id, $data['message'], $pdf);
                         if ($result['success'] ?? false) {

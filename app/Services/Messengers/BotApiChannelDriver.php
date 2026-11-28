@@ -38,12 +38,28 @@ abstract class BotApiChannelDriver implements MessengerDriverInterface
 
         try {
             if ($documentPath && is_file($documentPath)) {
-                $response = Http::timeout(120)
-                    ->attach('document', file_get_contents($documentPath), basename($documentPath))
-                    ->post("{$base}/sendDocument", [
-                        'chat_id' => $channelId,
-                        'caption' => $message,
-                    ]);
+                $stream = fopen($documentPath, 'rb');
+                if ($stream === false) {
+                    return ['success' => false, 'error' => 'خواندن فایل پیوست ممکن نشد: '.$documentPath];
+                }
+
+                try {
+                    $response = Http::timeout(120)
+                        ->attach(
+                            'document',
+                            $stream,
+                            basename($documentPath),
+                            ['Content-Type' => 'application/pdf'],
+                        )
+                        ->post("{$base}/sendDocument", [
+                            'chat_id' => $channelId,
+                            'caption' => $message,
+                        ]);
+                } finally {
+                    if (is_resource($stream)) {
+                        fclose($stream);
+                    }
+                }
             } else {
                 $response = Http::timeout(30)->post("{$base}/sendMessage", [
                     'chat_id' => $channelId,
