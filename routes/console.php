@@ -115,6 +115,20 @@ Artisan::command('barbin:ensure-storage', function () {
     \App\Support\LoggingPaths::ensureWritableTree();
 
     \App\Support\StoragePaths::touchStorageTree();
+
+    $publicRoot = (string) config('filesystems.disks.public.root');
+    if ($publicRoot !== '' && ! is_dir($publicRoot)) {
+        @mkdir($publicRoot, 0775, true);
+    }
+  $link = public_path('storage');
+    if ($publicRoot !== '' && ! file_exists($link) && is_dir($publicRoot)) {
+        if (@symlink($publicRoot, $link)) {
+            $this->info('Symlink public/storage → '.$publicRoot);
+        }
+    }
+    foreach (['product-images', 'branding'] as $dir) {
+        @mkdir($publicRoot.'/'.$dir, 0775, true);
+    }
     $probe = 'sales-pdfs/.write-test';
     try {
         \App\Support\StoragePaths::putGeneratedFile($probe, 'ok');
@@ -136,3 +150,43 @@ Artisan::command('barbin:ensure-storage', function () {
 
     return 0;
 })->purpose('ساخت پوشه‌های PDF/Excel و بررسی مجوز storage');
+
+Artisan::command('barbin:publish-product-images', function () {
+    $published = 0;
+    foreach (\App\Models\ProductImage::query()->cursor() as $image) {
+        foreach (['file_path', 'thumbnail_path'] as $field) {
+            $rel = $image->{$field};
+            if (! filled($rel)) {
+                continue;
+            }
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($rel)) {
+                continue;
+            }
+            $src = null;
+            foreach (['local', 'barbin'] as $disk) {
+                if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($rel)) {
+                    $src = $disk;
+                    break;
+                }
+            }
+            if ($src === null) {
+                $this->warn('یافت نشد: '.$rel);
+
+                continue;
+            }
+            $dir = dirname(str_replace('\\', '/', $rel));
+            if ($dir !== '.' && $dir !== '') {
+                @\Illuminate\Support\Facades\Storage::disk('public')->makeDirectory($dir);
+            }
+            $binary = \Illuminate\Support\Facades\Storage::disk($src)->get($rel);
+            if (\Illuminate\Support\Facades\Storage::disk('public')->put($rel, $binary)) {
+                $published++;
+                $this->line('→ public: '.$rel);
+            }
+        }
+    }
+    $this->info("منتشر شد: {$published} فایل");
+    $this->call('barbin:ensure-storage');
+
+    return 0;
+})->purpose('کپی تصاویر محصول از دیسک خصوصی به public/storage برای URL وب');

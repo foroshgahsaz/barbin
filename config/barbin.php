@@ -19,6 +19,9 @@ return [
         'font_path' => storage_path('fonts/Vazirmatn-Regular.ttf'),
         'font_family' => 'vazirmatn',
     ],
+    'sales_output' => [
+        'min_stock_quantity' => (int) env('BARBIN_SALES_MIN_STOCK', 5),
+    ],
     'sms_ir' => [
         'base_url' => env('SMS_IR_BASE_URL', 'https://api.sms.ir/v1'),
     ],

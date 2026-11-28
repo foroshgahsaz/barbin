@@ -3,6 +3,7 @@
 namespace App\Services\Sales;
 
 use App\Models\SalesFile;
+use App\Support\SalesOutputFilter;
 use App\Support\StockDisplay;
 use App\Support\StoragePaths;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +24,7 @@ class SalesExcelExportService
         $sheet->fromArray($headers, null, 'A1');
 
         $row = 2;
-        foreach ($salesFile->items as $item) {
+        foreach (SalesOutputFilter::filterItems($salesFile->items) as $item) {
             $sheet->fromArray([
                 $item->row_number,
                 $item->product_code,
