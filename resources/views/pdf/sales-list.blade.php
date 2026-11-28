@@ -56,7 +56,7 @@
                     <td>
                         <div class="card">
                             <div class="card-img-wrap">
-                                @php($path = $imageMap[$item->product_code] ?? null)
+                                @php($path = $imageMap[\App\Support\ProductCode::normalize($item->product_code) ?? $item->product_code] ?? null)
                                 @if($path && file_exists($path))
                                     <img class="card-img" src="{{ $path }}" alt="">
                                 @else
