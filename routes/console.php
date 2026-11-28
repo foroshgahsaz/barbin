@@ -60,6 +60,8 @@ Artisan::command('barbin:ensure-storage', function () {
             }
         }
         $this->info('storage/app/private قابل نوشتن است.');
+        $this->line('barbin root: '.(string) config('filesystems.disks.barbin.root'));
+        $this->line('local root: '.(string) config('filesystems.disks.local.root'));
     } catch (\Throwable $e) {
         $this->error($e->getMessage());
 

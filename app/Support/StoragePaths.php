@@ -34,8 +34,13 @@ final class StoragePaths
             }
         }
 
+        $roots = array_filter([
+            config('filesystems.disks.barbin.root'),
+            config('filesystems.disks.local.root'),
+        ]);
+
         throw new RuntimeException(
-            'ایجاد پوشه ذخیره‌سازی ممکن نشد. روی سرور: mkdir -p storage/app/sales-pdfs storage/app/private/sales-pdfs && chmod -R ug+rwx storage && php artisan barbin:ensure-storage',
+            'ایجاد پوشه ذخیره‌سازی ممکن نشد. دیسک Runflare را به /var/www/storage/app وصل کنید یا BARBIN_STORAGE_ROOT را روی مسیر mount بگذارید، سپس: php artisan barbin:ensure-storage (مسیرها: '.implode(', ', $roots).')',
         );
     }
 
