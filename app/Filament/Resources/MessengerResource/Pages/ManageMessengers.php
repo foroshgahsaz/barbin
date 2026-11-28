@@ -12,6 +12,11 @@ class ManageMessengers extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [Actions\CreateAction::make()];
+        return [
+            Actions\CreateAction::make()
+                ->label('ایجاد پیام‌رسان')
+                ->modalHeading('پیام‌رسان جدید')
+                ->successNotificationTitle('پیام‌رسان ذخیره شد'),
+        ];
     }
 }
