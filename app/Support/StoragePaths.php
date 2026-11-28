@@ -34,13 +34,10 @@ final class StoragePaths
             }
         }
 
-        $roots = array_filter([
-            config('filesystems.disks.barbin.root'),
-            config('filesystems.disks.local.root'),
-        ]);
+        $hints = StorageDiagnostics::formatForConsole(StorageDiagnostics::run());
 
         throw new RuntimeException(
-            'ایجاد پوشه ذخیره‌سازی ممکن نشد. دیسک Runflare را به /var/www/storage/app وصل کنید یا BARBIN_STORAGE_ROOT را روی مسیر mount بگذارید، سپس: php artisan barbin:ensure-storage (مسیرها: '.implode(', ', $roots).')',
+            "ایجاد پوشه ذخیره‌سازی ممکن نشد. در ترمینال پاد اجرا کنید:\nphp artisan barbin:storage-diagnose\n\n".$hints,
         );
     }
 
@@ -60,7 +57,7 @@ final class StoragePaths
         }
 
         throw new RuntimeException(
-            'نوشتن فایل ممکن نشد — مسیر: '.$absolute.' — مجوز storage را بررسی کنید.',
+            'نوشتن فایل ممکن نشد — مسیر: '.$absolute.' — php artisan barbin:storage-diagnose',
         );
     }
 
@@ -72,6 +69,7 @@ final class StoragePaths
             'sales-uploads',
             'inventory-uploads',
             'product-images',
+            'private',
         ];
 
         foreach (self::disksToTry() as $diskName) {
@@ -82,6 +80,11 @@ final class StoragePaths
                     // try next disk
                 }
             }
+        }
+
+        $privateRoot = (string) config('filesystems.disks.local.root');
+        if ($privateRoot !== '' && ! is_dir($privateRoot)) {
+            self::ensureAbsoluteDirectory($privateRoot);
         }
     }
 
@@ -127,7 +130,7 @@ final class StoragePaths
     private static function mkdirOnDisk(string $diskName, string $relativeDirectory): bool
     {
         if ($relativeDirectory === '') {
-            return true;
+            return self::diskRootWritable($diskName);
         }
 
         try {
@@ -136,12 +139,8 @@ final class StoragePaths
             return false;
         }
 
-        if ($disk->exists($relativeDirectory)) {
-            return true;
-        }
-
-        if ($disk->makeDirectory($relativeDirectory)) {
-            return true;
+        if (! self::diskRootWritable($diskName)) {
+            return false;
         }
 
         try {
@@ -150,17 +149,66 @@ final class StoragePaths
             return false;
         }
 
-        if (@mkdir($absolute, 0775, true) || is_dir($absolute)) {
+        if (is_dir($absolute)) {
+            return is_writable($absolute);
+        }
+
+        if ($disk->makeDirectory($relativeDirectory)) {
+            return is_writable($absolute) || is_dir($absolute);
+        }
+
+        if (self::ensureAbsoluteDirectory($absolute)) {
+            return is_writable($absolute);
+        }
+
+        return false;
+    }
+
+    private static function diskRootWritable(string $diskName): bool
+    {
+        try {
+            $root = Storage::disk($diskName)->path('');
+        } catch (\Throwable) {
+            return false;
+        }
+
+        $root = rtrim($root, DIRECTORY_SEPARATOR);
+        if (! is_dir($root)) {
+            if (! self::ensureAbsoluteDirectory($root)) {
+                return false;
+            }
+        }
+
+        return is_writable($root);
+    }
+
+    public static function ensureAbsoluteDirectory(string $absolute): bool
+    {
+        $absolute = rtrim(str_replace('\\', '/', $absolute), '/');
+        if ($absolute === '') {
+            return false;
+        }
+
+        if (is_dir($absolute)) {
             return true;
         }
 
-        $parent = storage_path('app');
-        if (! is_dir($parent)) {
-            @mkdir($parent, 0775, true);
+        $parent = dirname($absolute);
+        if ($parent !== $absolute && ! is_dir($parent)) {
+            if (! self::ensureAbsoluteDirectory($parent)) {
+                return false;
+            }
         }
-        if ($diskName === 'barbin' && ! is_dir($absolute)) {
-            @mkdir($absolute, 0775, true);
+
+        if (@mkdir($absolute, 0775)) {
+            return true;
         }
+
+        if (@mkdir($absolute, 0777)) {
+            return true;
+        }
+
+        clearstatcache(true, $absolute);
 
         return is_dir($absolute);
     }

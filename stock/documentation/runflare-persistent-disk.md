@@ -48,6 +48,30 @@ php artisan config:cache
 - `inventory-uploads/`
 - `product-images/`
 
+## خطایابی (مرحله‌به‌مرحله در ترمینال پاد)
+
+```bash
+cd /var/www
+php artisan barbin:storage-diagnose
+```
+
+اگر **is_writable: no** دیدید و با **root** هستید:
+
+```bash
+php artisan barbin:storage-repair
+```
+
+یا دستی (کاربر PHP اغلب `www-data` است — در خروجی diagnose چک کنید):
+
+```bash
+chown -R www-data:www-data /var/www/storage/app
+chmod -R ug+rwx /var/www/storage/app
+mkdir -p /var/www/storage/app/private
+php artisan barbin:ensure-storage
+```
+
+**نکته:** اگر در shell با `root` تست کنید ولی وب با `www-data`، فقط repair با chown به `www-data` مشکل را حل می‌کند.
+
 ## تلگرام — ارسال فایل فروش
 
 **ارسال به کانال** قبل از پیام، در صورت نیاز PDF را می‌سازد و با `sendDocument` همراه caption می‌فرستد. اگر فقط متن آمد، یعنی فایل روی دیسک نبوده (همان خطای storage).

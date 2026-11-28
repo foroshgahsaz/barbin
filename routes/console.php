@@ -2,6 +2,7 @@
 
 use App\Console\Commands\ResetAdminPasswordCommand;
 use App\Support\DeployProbe;
+use App\Support\StorageDiagnostics;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Spatie\Permission\Models\Permission;
@@ -47,6 +48,38 @@ Artisan::command('barbin:seed-demo {--force : بدون تأیید}', function ()
     return 0;
 })->purpose('سیدر نمایشی ۳ ماه موجودی، فروش و مشتری');
 
+Artisan::command('barbin:storage-diagnose', function () {
+    $report = StorageDiagnostics::run();
+    $this->line(StorageDiagnostics::formatForConsole($report));
+
+    $allOk = collect($report['write_probes'])->every(fn (array $p) => $p['ok']);
+
+    return $allOk ? 0 : 1;
+})->purpose('خطایابی مجوز storage (Runflare)');
+
+Artisan::command('barbin:storage-repair', function () {
+  if (trim((string) shell_exec('whoami 2>/dev/null')) !== 'root') {
+    $this->warn('این دستور فقط با root در shell پاد مؤثر است (ترمینال Runflare).');
+    $this->line('خروجی دستورات پیشنهادی:');
+    $report = StorageDiagnostics::run();
+    foreach ($report['fix_as_root'] as $cmd) {
+      $this->line('  '.$cmd);
+    }
+    return 1;
+  }
+
+  $report = StorageDiagnostics::run();
+  foreach ($report['fix_as_root'] as $cmd) {
+    $this->line('$ '.$cmd);
+    passthru($cmd, $code);
+    if ($code !== 0) {
+      $this->error('دستور ناموفق: '.$cmd);
+    }
+  }
+
+  return $this->call('barbin:ensure-storage');
+})->purpose('تعمیر chown/chmod storage (root در پاد)');
+
 Artisan::command('barbin:ensure-storage', function () {
     \App\Support\LoggingPaths::ensureWritableTree();
 
@@ -64,6 +97,8 @@ Artisan::command('barbin:ensure-storage', function () {
         $this->line('local root: '.(string) config('filesystems.disks.local.root'));
     } catch (\Throwable $e) {
         $this->error($e->getMessage());
+        $this->newLine();
+        $this->call('barbin:storage-diagnose');
 
         return 1;
     }
