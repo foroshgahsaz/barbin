@@ -29,6 +29,11 @@ class SalesPdfGenerator
             'imageMap' => $imageMap,
         ])->render();
 
+        $tempDir = storage_path('app/tmp/mpdf');
+        if (! is_dir($tempDir)) {
+            @mkdir($tempDir, 0775, true);
+        }
+
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4-L',
@@ -36,6 +41,7 @@ class SalesPdfGenerator
             'directionality' => 'rtl',
             'autoLangToFont' => true,
             'autoScriptToLang' => true,
+            'tempDir' => $tempDir,
         ]);
 
         $mpdf->SetHTMLFooter($this->footerHtml($branding));

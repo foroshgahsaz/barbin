@@ -70,6 +70,8 @@ final class StoragePaths
             'inventory-uploads',
             'product-images',
             'private',
+            'tmp',
+            'tmp/mpdf',
         ];
 
         foreach (self::disksToTry() as $diskName) {
