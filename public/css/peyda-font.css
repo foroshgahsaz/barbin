@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'Peyda';
+    src: url('/fonts/PeydaWebVF.woff2') format('woff2-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --font-family: 'Peyda', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+html,
+body,
+.fi-body {
+    font-family: var(--font-family);
+}

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\AsEncryptedString;
 use Illuminate\Database\Eloquent\Model;
 
 class Messenger extends Model
@@ -21,7 +20,7 @@ class Messenger extends Model
     protected function casts(): array
     {
         return [
-            'bot_token' => AsEncryptedString::class,
+            'bot_token' => 'encrypted',
             'is_active' => 'boolean',
             'last_success_at' => 'datetime',
         ];
